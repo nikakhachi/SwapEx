@@ -28,5 +28,11 @@ describe("Lock", function () {
       expect(await swapEx.token0()).to.eq(celestia.address);
       expect(await swapEx.token1()).to.eq(lumina.address);
     });
+    it("Should set right token reservers", async function () {
+      const { swapEx } = await loadFixture(deployOneYearLockFixture);
+
+      expect(await swapEx.reserve0()).to.eq(0);
+      expect(await swapEx.reserve1()).to.eq(0);
+    });
   });
 });
