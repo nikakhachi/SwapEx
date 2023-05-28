@@ -53,24 +53,6 @@ contract SwapEx is ERC20 {
         return amountOut;
     }
 
-    // function tokenPrice(
-    //     address _interestedToken
-    // ) external view returns (uint price) {
-    //     require(
-    //         _interestedToken == address(token0) ||
-    //             _interestedToken == address(token1),
-    //         "invalid _tokenIn"
-    //     );
-    //     (uint reserveIn, uint reserveOut) = _interestedToken == address(token0)
-    //         ? (reserve1, reserve0)
-    //         : (reserve0, reserve1);
-
-    //     uint amountOut = ((10 ** decimals()) * 1000) / 1000; // no fees;
-
-    //     // x△ = (x * y△) / (y - y△)
-    //     price = (reserveIn * amountOut) / (reserveOut - amountOut);
-    // }
-
     function addLiquidity(
         uint _amount0,
         uint _amount1
