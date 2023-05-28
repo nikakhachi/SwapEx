@@ -41,5 +41,37 @@ describe("Liquidity", async function () {
 
       expect(Number(ethers.utils.formatUnits(await swapEx.balanceOf(owner.address)))).to.eq(0);
     });
+    it("Remove Liquidity With Swaps/Fees", async function () {
+      const { celestia, lumina, swapEx, owner, luminaFaucet, otherAccount } = await loadFixture(deploySwapExFixture);
+
+      await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
+      await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
+
+      await swapEx.addLiquidity(
+        ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
+        ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
+      );
+
+      const luminaToSell = ethers.utils.parseUnits("10");
+      await luminaFaucet.connect(otherAccount).withdraw();
+      await lumina.connect(otherAccount).approve(swapEx.address, luminaToSell);
+
+      await swapEx.connect(otherAccount).swap(lumina.address, luminaToSell);
+
+      await swapEx.removeLiquidity(await swapEx.balanceOf(owner.address));
+
+      expect(await swapEx.reserve0()).to.eq(0);
+      expect(await swapEx.reserve1()).to.eq(0);
+
+      expect(Number(ethers.utils.formatUnits(await swapEx.balanceOf(owner.address)))).to.eq(0);
+
+      const celestiaOfProvider = await celestia.balanceOf(owner.address);
+      const luminaOfProvider = await lumina.balanceOf(owner.address);
+
+      expect(Number(ethers.utils.formatUnits(luminaOfProvider))).to.eq(
+        INITIAL_LUMINA_SUPPLY + Number(ethers.utils.formatUnits(luminaToSell))
+      );
+      expect(Number(ethers.utils.formatUnits(celestiaOfProvider))).lessThan(INITIAL_CELESTIA_SUPPLY);
+    });
   });
 });
