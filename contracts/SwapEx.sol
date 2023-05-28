@@ -44,9 +44,9 @@ contract SwapEx is ERC20 {
         // therefore manipulate prices, so we always set reserves current reserve
         // plus amount in
         if (isToken0) {
-            _update(reserve0 + amountInWithFees, reserve1 - amountOut);
+            _update(reserve0 + _amountIn, reserve1 - amountOut);
         } else {
-            _update(reserve0 - amountOut, reserve1 + amountInWithFees);
+            _update(reserve0 - amountOut, reserve1 + _amountIn);
         }
 
         tokenOut.transfer(msg.sender, amountOut);
