@@ -1,7 +1,13 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { deploySwapExFixture, INITIAL_CELESTIA_SUPPLY, INITIAL_LUMINA_SUPPLY } from ".";
+import {
+  CELESTIA_AMOUNT_PER_WITHDRAW,
+  deploySwapExFixture,
+  INITIAL_CELESTIA_SUPPLY,
+  INITIAL_LUMINA_SUPPLY,
+  LUMINA_AMOUNT_PER_WITHDRAW,
+} from ".";
 
 describe("Liquidity", async function () {
   describe("No existing liquidity prior", async function () {
@@ -72,6 +78,47 @@ describe("Liquidity", async function () {
         INITIAL_LUMINA_SUPPLY + Number(ethers.utils.formatUnits(luminaToSell))
       );
       expect(Number(ethers.utils.formatUnits(celestiaOfProvider))).lessThan(INITIAL_CELESTIA_SUPPLY);
+    });
+  });
+  describe("Existing liquidity prior", async function () {
+    it("Add Liquidity", async function () {
+      const { celestia, lumina, swapEx, owner, otherAccount, luminaFaucet, celestiaFaucet } = await loadFixture(deploySwapExFixture);
+
+      await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
+      await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
+
+      await swapEx.addLiquidity(
+        ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
+        ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
+      );
+
+      await luminaFaucet.connect(otherAccount).withdraw();
+      await celestiaFaucet.connect(otherAccount).withdraw();
+
+      await celestia.connect(otherAccount).approve(swapEx.address, ethers.utils.parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW)));
+      await lumina.connect(otherAccount).approve(swapEx.address, ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW)));
+
+      await swapEx
+        .connect(otherAccount)
+        .addLiquidity(
+          ethers.utils.parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW)),
+          ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW))
+        );
+
+      const reserve0BeforeRemovingLiquidity = await swapEx.reserve0();
+      const reserve1BeforeRemovingLiquidity = await swapEx.reserve1();
+      const totalShares = await swapEx.totalSupply();
+
+      const shares = await swapEx.balanceOf(otherAccount.address);
+
+      //   shares = Math.min(
+      //     (_amount0 * totalSupply()) / reserve0,
+      //     (_amount1 * totalSupply()) / reserve1
+      // );
+      expect(shares.toString()).to.be.oneOf([
+        ethers.utils.parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW)).mul(totalShares).div(reserve0BeforeRemovingLiquidity).toString(),
+        ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW)).mul(totalShares).div(reserve1BeforeRemovingLiquidity).toString(),
+      ]);
     });
   });
 });
