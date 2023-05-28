@@ -15,8 +15,12 @@ describe("Lock", function () {
   async function deployOneYearLockFixture() {
     const [owner, otherAccount] = await ethers.getSigners();
 
-    const Celestia = await ethers.getContractFactory("Celestia");
-    const celestia = await Celestia.deploy(ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY + CELESTIA_FAUCET_AMOUNT)));
+    const Celestia = await ethers.getContractFactory("Token");
+    const celestia = await Celestia.deploy(
+      "Celestia",
+      "CEL",
+      ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY + CELESTIA_FAUCET_AMOUNT))
+    );
 
     const CelestiaFaucet = await ethers.getContractFactory("Faucet");
     const celestiaFaucet = await CelestiaFaucet.deploy(
@@ -27,8 +31,8 @@ describe("Lock", function () {
 
     await celestia.transfer(celestiaFaucet.address, ethers.utils.parseUnits(String(CELESTIA_FAUCET_AMOUNT)));
 
-    const Lumina = await ethers.getContractFactory("Lumina");
-    const lumina = await Lumina.deploy(ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY + LUMINA_FAUCET_AMOUNT)));
+    const Lumina = await ethers.getContractFactory("Token");
+    const lumina = await Lumina.deploy("Lumina", "LUM", ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY + LUMINA_FAUCET_AMOUNT)));
 
     const LuminaFaucet = await ethers.getContractFactory("Faucet");
     const luminaFaucet = await LuminaFaucet.deploy(
