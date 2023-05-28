@@ -34,7 +34,7 @@ contract SwapEx is ERC20 {
 
         tokenIn.transferFrom(msg.sender, address(this), _amountIn);
 
-        uint amountInWithFees = (_amountIn * 1000) / 1000; // no fees
+        uint amountInWithFees = (_amountIn * 995) / 1000; // 0.5% fees
         // y△ = (y * x△) / (x + x△)
         uint amountOut = (reserveOut * amountInWithFees) /
             (reserveIn + amountInWithFees);
@@ -53,23 +53,23 @@ contract SwapEx is ERC20 {
         return amountOut;
     }
 
-    function tokenPrice(
-        address _interestedToken
-    ) external view returns (uint price) {
-        require(
-            _interestedToken == address(token0) ||
-                _interestedToken == address(token1),
-            "invalid _tokenIn"
-        );
-        (uint reserveIn, uint reserveOut) = _interestedToken == address(token0)
-            ? (reserve1, reserve0)
-            : (reserve0, reserve1);
+    // function tokenPrice(
+    //     address _interestedToken
+    // ) external view returns (uint price) {
+    //     require(
+    //         _interestedToken == address(token0) ||
+    //             _interestedToken == address(token1),
+    //         "invalid _tokenIn"
+    //     );
+    //     (uint reserveIn, uint reserveOut) = _interestedToken == address(token0)
+    //         ? (reserve1, reserve0)
+    //         : (reserve0, reserve1);
 
-        uint amountOut = ((10 ** decimals()) * 1000) / 1000; // no fees;
+    //     uint amountOut = ((10 ** decimals()) * 1000) / 1000; // no fees;
 
-        // x△ = (x * y△) / (y - y△)
-        price = (reserveIn * amountOut) / (reserveOut - amountOut);
-    }
+    //     // x△ = (x * y△) / (y - y△)
+    //     price = (reserveIn * amountOut) / (reserveOut - amountOut);
+    // }
 
     function addLiquidity(
         uint _amount0,
