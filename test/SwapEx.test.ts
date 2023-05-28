@@ -3,8 +3,12 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 
 describe("Lock", function () {
-  const INITIAL_CELESTIA_SUPPLY = 1000;
-  const INITIAL_LUMINA_SUPPLY = 5000;
+  const INITIAL_CELESTIA_SUPPLY = 10010;
+  const INITIAL_LUMINA_SUPPLY = 50050;
+  const FREE_CELESTIA_FUNDS = 10;
+  const FREE_LUMINA_FUNDS = 50;
+  const INITIAL_CELESTIA_LIQUIDITY = INITIAL_CELESTIA_SUPPLY - FREE_CELESTIA_FUNDS;
+  const INITIAL_LUMINA_LIQUIDITY = INITIAL_LUMINA_SUPPLY - FREE_LUMINA_FUNDS;
 
   async function deployOneYearLockFixture() {
     const [owner, otherAccount] = await ethers.getSigners();
@@ -17,6 +21,9 @@ describe("Lock", function () {
 
     const SwapEx = await ethers.getContractFactory("SwapEx");
     const swapEx = await SwapEx.deploy(celestia.address, lumina.address);
+
+    await celestia.transfer(otherAccount.address, ethers.utils.parseUnits(String(FREE_CELESTIA_FUNDS)));
+    await lumina.transfer(otherAccount.address, ethers.utils.parseUnits(String(FREE_LUMINA_FUNDS)));
 
     return { celestia, lumina, swapEx, owner, otherAccount };
   }
@@ -43,30 +50,30 @@ describe("Lock", function () {
     it("Add Liquidity", async function () {
       const { celestia, lumina, swapEx, owner } = await loadFixture(deployOneYearLockFixture);
 
-      await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
-      await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
+      await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_LIQUIDITY)));
+      await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_LIQUIDITY)));
 
       await swapEx.addLiquidity(
-        ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
-        ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
+        ethers.utils.parseUnits(String(INITIAL_CELESTIA_LIQUIDITY)),
+        ethers.utils.parseUnits(String(INITIAL_LUMINA_LIQUIDITY))
       );
 
-      expect(await swapEx.reserve0()).to.eq(ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
-      expect(await swapEx.reserve1()).to.eq(ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
+      expect(await swapEx.reserve0()).to.eq(ethers.utils.parseUnits(String(INITIAL_CELESTIA_LIQUIDITY)));
+      expect(await swapEx.reserve1()).to.eq(ethers.utils.parseUnits(String(INITIAL_LUMINA_LIQUIDITY)));
 
       expect(Number(ethers.utils.formatUnits(await swapEx.balanceOf(owner.address)))).to.eq(
-        Math.sqrt(INITIAL_CELESTIA_SUPPLY * INITIAL_LUMINA_SUPPLY)
+        Math.sqrt(INITIAL_CELESTIA_LIQUIDITY * INITIAL_LUMINA_LIQUIDITY)
       );
     });
     it("Remove Liquidity", async function () {
       const { celestia, lumina, swapEx, owner } = await loadFixture(deployOneYearLockFixture);
 
-      await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
-      await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
+      await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_LIQUIDITY)));
+      await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_LIQUIDITY)));
 
       await swapEx.addLiquidity(
-        ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
-        ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
+        ethers.utils.parseUnits(String(INITIAL_CELESTIA_LIQUIDITY)),
+        ethers.utils.parseUnits(String(INITIAL_LUMINA_LIQUIDITY))
       );
 
       await swapEx.removeLiquidity(await swapEx.balanceOf(owner.address));
