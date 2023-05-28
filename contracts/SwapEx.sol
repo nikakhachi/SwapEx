@@ -89,8 +89,8 @@ contract SwapEx is ERC20 {
             shares = Math.sqrt(_amount0 * _amount1);
         } else {
             shares = Math.min(
-                (_amount0 / reserve0) * totalSupply(),
-                (_amount1 / reserve1) * totalSupply()
+                (_amount0 * totalSupply()) / reserve0,
+                (_amount1 * totalSupply()) / reserve1
             );
         }
 
