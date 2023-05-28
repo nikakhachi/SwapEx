@@ -4,8 +4,11 @@ import { ethers } from "hardhat";
 import { deploySwapExFixture, INITIAL_CELESTIA_SUPPLY, INITIAL_LUMINA_SUPPLY } from ".";
 
 describe("Liquidity", async function () {
-  it("Add Liquidity", async function () {
+  it("Add Liquidity Initially", async function () {
     const { celestia, lumina, swapEx, owner } = await loadFixture(deploySwapExFixture);
+
+    expect(await swapEx.reserve0()).to.eq(0);
+    expect(await swapEx.reserve1()).to.eq(0);
 
     await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
     await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
@@ -22,7 +25,7 @@ describe("Liquidity", async function () {
       Math.sqrt(INITIAL_CELESTIA_SUPPLY * INITIAL_LUMINA_SUPPLY)
     );
   });
-  it("Remove Liquidity", async function () {
+  it("Remove Liquidity Without Swaps", async function () {
     const { celestia, lumina, swapEx, owner } = await loadFixture(deploySwapExFixture);
 
     await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
