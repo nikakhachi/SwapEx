@@ -98,16 +98,16 @@ describe("Liquidity", async function () {
       await celestia.connect(otherAccount).approve(swapEx.address, ethers.utils.parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW)));
       await lumina.connect(otherAccount).approve(swapEx.address, ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW)));
 
+      const reserve0BeforeAddingLiquidity = await swapEx.reserve0();
+      const reserve1BeforeAddingLiquidity = await swapEx.reserve1();
+      const totalSharesBeforeAddingLiquidity = await swapEx.totalSupply();
+
       await swapEx
         .connect(otherAccount)
         .addLiquidity(
           ethers.utils.parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW)),
           ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW))
         );
-
-      const reserve0BeforeRemovingLiquidity = await swapEx.reserve0();
-      const reserve1BeforeRemovingLiquidity = await swapEx.reserve1();
-      const totalShares = await swapEx.totalSupply();
 
       const shares = await swapEx.balanceOf(otherAccount.address);
 
@@ -116,8 +116,16 @@ describe("Liquidity", async function () {
       //     (_amount1 * totalSupply()) / reserve1
       // );
       expect(shares.toString()).to.be.oneOf([
-        ethers.utils.parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW)).mul(totalShares).div(reserve0BeforeRemovingLiquidity).toString(),
-        ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW)).mul(totalShares).div(reserve1BeforeRemovingLiquidity).toString(),
+        ethers.utils
+          .parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW))
+          .mul(totalSharesBeforeAddingLiquidity)
+          .div(reserve0BeforeAddingLiquidity)
+          .toString(),
+        ethers.utils
+          .parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW))
+          .mul(totalSharesBeforeAddingLiquidity)
+          .div(reserve1BeforeAddingLiquidity)
+          .toString(),
       ]);
     });
   });
