@@ -54,6 +54,7 @@ contract Staker is Ownable {
     }
 
     function withdraw(uint _amount) external {
+        require(stakedBalanceOf[msg.sender] >= _amount);
         rewardPerToken +=
             (rewardRate / totalStaked) *
             (_lastApplicableTime() - lastUpdateTime);
