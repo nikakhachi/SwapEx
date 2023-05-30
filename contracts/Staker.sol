@@ -6,94 +6,76 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Math.sol";
 
 contract Staker is Ownable {
-    IERC20 public immutable stakingToken;
     IERC20 public immutable rewardsToken;
 
-    uint public duration;
-    uint public finishAt;
-    uint public updatedAt;
-    uint public rewardRate;
-    uint public rewardPerTokenStored;
-
-    mapping(address => uint) public userRewardPerTokenPaid;
-    mapping(address => uint) public rewards;
-
-    uint public totalSupply;
-    mapping(address => uint) balanceOf;
-
-    constructor(address _stakingToken, address _rewardsToken) {
-        stakingToken = IERC20(_stakingToken);
+    constructor(address _rewardsToken) {
         rewardsToken = IERC20(_rewardsToken);
     }
 
-    modifier updateReward(address _account) {
-        rewardPerTokenStored = rewardPerToken();
-        updatedAt = lastTimeRewardApplicable();
-        if (_account != address(0)) {
-            rewards[_account] = earned(_account);
-            userRewardPerTokenPaid[_account] = rewardPerTokenStored;
-        }
-        _;
-    }
+    uint public rewardsSupply; // Total Supply of Rewards to Give
+    uint public duration; // Duration of Rewards Given
+    uint public finishAt; // End of Giving Rewards
+    uint public rewardRate; // Amount of rewards to give / duration
 
-    function setRewardsDurationo(uint _duration) external onlyOwner {
+    uint public totalStaked; // Total amount of tokens staked
+
+    mapping(address => uint) public stakedBalanceOf; // Amount of token staked by users
+    mapping(address => uint) public userRewardPerTokenPaid; // Amount of rewards paid to users
+    mapping(address => uint) public userRewards; // Rewards earned by users
+
+    uint public rewardPerToken; // Reward per token
+    uint public lastUpdateTime; // Last timestamp when someone staked or withdrew
+
+    function setRewards(uint _amount, uint _duration) external onlyOwner {
         require(finishAt < block.timestamp);
+        require(_amount > 0);
+        require(_duration > 0);
+        require(rewardsToken.balanceOf(address(this)) >= _amount);
+        rewardsSupply = _amount;
         duration = _duration;
+        finishAt = block.timestamp + _duration;
+        rewardRate = _amount / _duration;
+        lastUpdateTime = block.timestamp;
     }
 
-    function setRewardsAmount(
-        uint _amount
-    ) external onlyOwner updateReward(address(0)) {
-        if (block.timestamp > finishAt) {
-            rewardRate = _amount / duration;
-        } else {
-            uint remainingRewards = rewardRate * (finishAt - block.timestamp);
-            rewardRate = (remainingRewards + _amount) / duration;
+    function stake() external payable {
+        require(stakedBalanceOf[msg.sender] == 0);
+        require(msg.value > 0);
+        if (totalStaked != 0) {
+            rewardPerToken +=
+                (rewardRate / totalStaked) *
+                (_lastApplicableTime() - lastUpdateTime);
+            uint rewards = stakedBalanceOf[msg.sender] *
+                (rewardPerToken - userRewardPerTokenPaid[msg.sender]);
+            userRewards[msg.sender] += rewards;
+            userRewardPerTokenPaid[msg.sender] = rewardPerToken;
         }
-        require(rewardRate > 0);
-        require(rewardRate * duration <= rewardsToken.balanceOf(address(this)));
-        finishAt = block.timestamp + duration;
-        updatedAt = block.timestamp;
+        stakedBalanceOf[msg.sender] += msg.value;
+        totalStaked += msg.value;
     }
 
-    function stake(uint _amount) external updateReward(msg.sender) {
-        require(_amount > 0);
-        stakingToken.transferFrom(msg.sender, address(this), _amount);
-        balanceOf[msg.sender] += _amount;
-        totalSupply += _amount;
+    function withdraw(uint _amount) external {
+        rewardPerToken +=
+            (rewardRate / totalStaked) *
+            (_lastApplicableTime() - lastUpdateTime);
+        uint rewards = _amount *
+            (rewardPerToken - userRewardPerTokenPaid[msg.sender]);
+        userRewardPerTokenPaid[msg.sender] = rewardPerToken;
+        stakedBalanceOf[msg.sender] -= _amount;
+        totalStaked -= _amount;
+        // rewardsToken.transfer(msg.sender, rewards);
+        userRewards[msg.sender] += rewards;
+        (bool success, ) = msg.sender.call{value: _amount}("");
+        require(success);
     }
 
-    function withdraw(uint _amount) external updateReward(msg.sender) {
-        require(_amount > 0);
-        balanceOf[msg.sender] -= _amount;
-        totalSupply -= _amount;
-        stakingToken.transfer(msg.sender, _amount);
-    }
-
-    function rewardPerToken() public view returns (uint) {
-        if (totalSupply == 0) return rewardPerTokenStored;
-        return
-            rewardPerTokenStored +
-            (rewardRate * lastTimeRewardApplicable() - updatedAt) /
-            totalSupply;
-    }
-
-    function earned(address _account) public view returns (uint) {
-        return
-            balanceOf[_account] *
-            (rewardPerToken() - userRewardPerTokenPaid[msg.sender]) +
-            rewards[_account];
-    }
-
-    function lastTimeRewardApplicable() public view returns (uint) {
+    function _lastApplicableTime() private view returns (uint) {
         return Math.min(block.timestamp, finishAt);
     }
 
-    function getReward() external updateReward(msg.sender) {
-        uint reward = rewards[msg.sender];
-        if (reward > 0) {
-            rewards[msg.sender] = 0;
-            rewardsToken.transfer(msg.sender, reward);
-        }
+    function getRewards() external {
+        uint rewards = userRewards[msg.sender];
+        userRewards[msg.sender] = 0;
+        rewardsToken.transfer(msg.sender, rewards);
     }
 }
