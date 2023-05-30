@@ -39,7 +39,6 @@ contract Staker is Ownable {
     }
 
     function stake() external payable {
-        require(stakedBalanceOf[msg.sender] == 0);
         require(msg.value > 0);
         if (totalStaked != 0) {
             rewardPerToken +=
