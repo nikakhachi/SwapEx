@@ -63,7 +63,7 @@ contract Staker is Ownable {
         userRewardPerTokenPaid[msg.sender] = rewardPerToken;
         stakedBalanceOf[msg.sender] = 0;
         totalStaked -= stakedAmount;
-        lastUpdateTime = block.timestamp;
+        lastUpdateTime = _lastApplicableTime();
         userRewards[msg.sender] += rewards;
     }
 
