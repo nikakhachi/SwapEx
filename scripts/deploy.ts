@@ -66,6 +66,8 @@ async function main() {
 
   await celestia.transfer(staker.address, ethers.utils.parseUnits(String(CELESTIA_FOR_STAKE_REWARDS)));
 
+  await staker.setRewards(ethers.utils.parseUnits(String(CELESTIA_FOR_STAKE_REWARDS)), 60 * 60);
+
   await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(CELESTIA_FOR_INITIAL_LIQUIDITY)));
   await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(LUMINA_FOR_INITIAL_LIQUIDITY)));
 
