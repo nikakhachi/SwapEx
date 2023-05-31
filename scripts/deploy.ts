@@ -10,7 +10,7 @@ const LUMINA_FOR_FAUCET_PER_WITHDRAW = 50;
 const FAUCET_COOLDOWN = 60;
 
 async function main() {
-  await ethers.provider.send("evm_setIntervalMining", [2000]);
+  await ethers.provider.send("evm_setIntervalMining", [12000]);
 
   const Celestia = await ethers.getContractFactory("Token");
   const celestia = await Celestia.deploy(
