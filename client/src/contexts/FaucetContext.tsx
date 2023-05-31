@@ -32,6 +32,7 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "withdrawalTimes",
     args: [address],
     enabled: false,
+    watch: true,
   });
   const { data: token1WithdrawalTime, refetch: fetchToken1WithdrawalTime } = useContractRead({
     address: TOKEN1_FAUCET_ADDRESS,
@@ -39,6 +40,7 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "withdrawalTimes",
     args: [address],
     enabled: false,
+    watch: true,
   });
   const { write: withdrawToken0Tx, isSuccess: onToken0WithdrawalSuccess } = useContractWrite({
     address: TOKEN0_FAUCET_ADDRESS,
