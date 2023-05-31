@@ -1,28 +1,81 @@
-import { useEffect, useState } from "react";
-import "./App.css";
+import { useContext, useEffect, useState } from "react";
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { useAccount, useContractRead, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ethers } from "ethers";
-import { SWAPEX_ABI } from "./contracts/swapEx";
+import { SwapExContext } from "./contexts/SwapExContext";
+import { shortenAddress } from "./utils";
 
 function App() {
-  const { address, isConnected } = useAccount();
-  // const { data, isError, isLoading } = useContractRead({
-  //   address: "0x0165878a594ca255338adfa4d48449f69242eb8f",
-  //   abi: SWAPEX_ABI,
-  //   functionName: "reserve0",
-  // });
+  const swapExContext = useContext(SwapExContext);
 
-  // useEffect(() => {
-  //   console.log(data);
-  // }, []);
+  const [tokenToSellSymbol, setTokenToSellSymbol] = useState("");
+  const [tokenToSellAddress, setTokenToSellAddress] = useState("");
+  const [tokenToBuySymbol, setTokenToBuySymbol] = useState("");
+  const [tokenToBuyAddress, setTokenToBuyAddress] = useState("");
+
+  const [amountToSell, setAmountToSell] = useState(0);
+  const [token0ToProvide, setToken0ToProvide] = useState(0);
+  const [token1ToProvide, setToken1ToProvide] = useState(0);
+
+  const [sharesToRemove, setSharesToRemove] = useState(0);
+
+  useEffect(() => {
+    if (swapExContext?.token0Symbol) {
+      setTokenToSellSymbol(swapExContext?.token0Symbol);
+      setTokenToSellAddress(swapExContext?.token0Address);
+      setTokenToBuySymbol(swapExContext?.token1Symbol);
+      setTokenToBuyAddress(swapExContext?.token1Address);
+    }
+  }, [swapExContext?.token0Symbol]);
 
   return (
     <div>
-      <pre>{JSON.stringify({ address, isConnected })}</pre>
       <ConnectButton />
+      <div style={{ border: "1px solid white", padding: "0.5rem 2rem", marginTop: "2rem" }}>
+        <h4>SWAP</h4>
+        <p>
+          Selling: {tokenToSellSymbol} ({shortenAddress(tokenToSellAddress)})
+        </p>
+        <p>
+          Buying: {tokenToBuySymbol} ({shortenAddress(tokenToBuyAddress)})
+        </p>
+        <div>
+          Amount to Sell <input value={amountToSell} onChange={(e) => setAmountToSell(Number(e.target.value))} type="number" />
+        </div>
+        <div style={{ marginTop: "1rem" }}>
+          <button style={{ marginRight: "1rem" }}>Approve</button>
+          <button>SWAP</button>
+        </div>
+      </div>
+      <div style={{ border: "1px solid white", padding: "0.5rem 2rem", marginTop: "2rem" }}>
+        <h4>LIQUIDITY</h4>
+        <p>LP Tokens: {swapExContext?.lpTokenAmount}</p>
+        {swapExContext?.lpTokenAmount === 0 && (
+          <div>
+            <input value={sharesToRemove} onChange={(e) => setSharesToRemove(Number(e.target.value))} type="number" />
+            <div>
+              <button>Remove Liquidity</button>
+            </div>
+          </div>
+        )}
+        <p>
+          {swapExContext?.token0Symbol} Reserve: {swapExContext?.token0Reserve} tokens
+        </p>
+        <p>
+          {swapExContext?.token1Symbol} Reserve: {swapExContext?.token1Reserve} tokens
+        </p>
+        <div>
+          {swapExContext?.token0Symbol} to provide:{" "}
+          <input value={token0ToProvide} onChange={(e) => setToken0ToProvide(Number(e.target.value))} type="number" />
+        </div>
+        <div>
+          {swapExContext?.token1Symbol} to provide:{" "}
+          <input value={token1ToProvide} onChange={(e) => setToken1ToProvide(Number(e.target.value))} type="number" />
+        </div>
+        <div>
+          <button>Add Liquidity</button>
+        </div>
+      </div>
     </div>
   );
 }
