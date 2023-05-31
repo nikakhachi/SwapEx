@@ -45,8 +45,9 @@ contract Staker is Ownable {
         require(msg.value > 0);
         if (totalStaked != 0) {
             rewardPerToken +=
-                (rewardRate / totalStaked) *
-                (_lastApplicableTime() - lastUpdateTime);
+                ((rewardRate * (_lastApplicableTime() - lastUpdateTime)) *
+                    1e18) /
+                totalStaked;
             userRewardPerTokenPaid[msg.sender] = rewardPerToken;
         }
         totalStaked += msg.value;
@@ -58,10 +59,10 @@ contract Staker is Ownable {
         require(stakedBalanceOf[msg.sender] != 0);
         uint stakedAmount = stakedBalanceOf[msg.sender];
         rewardPerToken +=
-            (rewardRate / totalStaked) *
-            (_lastApplicableTime() - lastUpdateTime);
-        uint rewards = stakedAmount *
-            (rewardPerToken - userRewardPerTokenPaid[msg.sender]);
+            ((rewardRate * (_lastApplicableTime() - lastUpdateTime)) * 1e18) /
+            totalStaked;
+        uint rewards = (stakedAmount *
+            (rewardPerToken - userRewardPerTokenPaid[msg.sender])) / 1e18;
         userRewardPerTokenPaid[msg.sender] = rewardPerToken;
         stakedBalanceOf[msg.sender] = 0;
         totalStaked -= stakedAmount;
