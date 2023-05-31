@@ -14,6 +14,7 @@ contract Staker is Ownable {
         rewardsToken = IERC20(_rewardsToken);
     }
 
+    uint public totalRewardsToGive; // Total Rewards that will be given
     uint public duration; // Duration of Rewards Given
     uint public finishAt; // End of Giving Rewards
     uint public rewardRate; // Amount of rewards to give / duration
@@ -36,6 +37,7 @@ contract Staker is Ownable {
         finishAt = block.timestamp + _duration;
         rewardRate = _amount / _duration;
         lastUpdateTime = block.timestamp;
+        totalRewardsToGive = _amount;
     }
 
     function stake() external payable {
