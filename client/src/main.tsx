@@ -8,6 +8,7 @@ import { goerli, localhost } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { SwapExProvider } from "./contexts/SwapExContext.tsx";
 import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
+import { FaucetProvider } from "./contexts/FaucetContext.tsx";
 
 const { chains, publicClient } = configureChains(
   [
@@ -36,7 +37,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
       <RainbowKitProvider chains={chains}>
         <SnackbarProvider>
           <SwapExProvider>
-            <App />
+            <FaucetProvider>
+              <App />
+            </FaucetProvider>
           </SwapExProvider>
         </SnackbarProvider>
       </RainbowKitProvider>
