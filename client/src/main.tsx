@@ -9,6 +9,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { SwapExProvider } from "./contexts/SwapExContext.tsx";
 import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
 import { FaucetProvider } from "./contexts/FaucetContext.tsx";
+import { StakerProvider } from "./contexts/StakerContext.tsx";
 
 const { chains, publicClient } = configureChains(
   [
@@ -38,7 +39,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <SnackbarProvider>
           <SwapExProvider>
             <FaucetProvider>
-              <App />
+              <StakerProvider>
+                <App />
+              </StakerProvider>
             </FaucetProvider>
           </SwapExProvider>
         </SnackbarProvider>
