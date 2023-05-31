@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import "./App.css";
+import "@rainbow-me/rainbowkit/styles.css";
+
+import { useAccount, useContractRead, useContractWrite, useWaitForTransaction } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ethers } from "ethers";
+import { SWAPEX_ABI } from "./contracts/swapEx";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { address, isConnected } = useAccount();
+  // const { data, isError, isLoading } = useContractRead({
+  //   address: "0x0165878a594ca255338adfa4d48449f69242eb8f",
+  //   abi: SWAPEX_ABI,
+  //   functionName: "reserve0",
+  // });
+
+  // useEffect(() => {
+  //   console.log(data);
+  // }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <pre>{JSON.stringify({ address, isConnected })}</pre>
+      <ConnectButton />
+    </div>
+  );
 }
 
-export default App
+export default App;
