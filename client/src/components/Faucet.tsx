@@ -19,25 +19,51 @@ export const Faucet: FC = () => {
   };
 
   return (
-    <div style={{ border: "1px solid white", padding: "0.5rem 2rem", marginTop: "2rem" }}>
-      <h4>Faucet</h4>
-      <p>
-        {swapExContext?.token0Symbol} amount per withdraw: {faucetContext?.token0WithdrawableAmountPerCall}
-      </p>
-      {token0WithdrawAvailable ? (
-        <button onClick={withdrawToken0}>Withdraw</button>
-      ) : (
-        <p>Withdraw Available At {moment(faucetContext?.token0WithdrawAvailableTimestamp).format("DD/MM/YYYY, h:mm:ss a")}</p>
-      )}
-      <p>---</p>
-      <p>
-        {swapExContext?.token1Symbol} amount per withdraw: {faucetContext?.token1WithdrawableAmountPerCall}
-      </p>
-      {token1WithdrawAvailable ? (
-        <button onClick={withdrawToken1}>Withdraw</button>
-      ) : (
-        <p>Withdraw Available At {moment(faucetContext?.token1WithdrawAvailableTimestamp).format("DD/MM/YYYY, hh:mm:ss")}</p>
-      )}
+    <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+      <div>
+        <p className="text-2xl">
+          {swapExContext?.token0Symbol}{" "}
+          <span className="text-sm">
+            Enjoy {faucetContext?.token0WithdrawableAmountPerCall} {swapExContext?.token0Symbol} when you make a request
+          </span>
+        </p>
+        <div className="mt-2">
+          <button
+            disabled={!token0WithdrawAvailable}
+            className={`bg-red-400 rounded-xl text-md py-1 px-8 ${!token0WithdrawAvailable && "bg-gray-600 text-gray-800"}`}
+            onClick={withdrawToken0}
+          >
+            Send Me {swapExContext?.token0Symbol}
+          </button>
+          {!token0WithdrawAvailable && (
+            <p className="text-sm mt-1">
+              Withdraw Available At {moment(faucetContext?.token0WithdrawAvailableTimestamp).format("DD/MM/YYYY, h:mm:ss a")}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="mt-8">
+        <p className="text-2xl">
+          {swapExContext?.token1Symbol}{" "}
+          <span className="text-sm">
+            Enjoy {faucetContext?.token1WithdrawableAmountPerCall} {swapExContext?.token1Symbol} when you make a request
+          </span>
+        </p>
+        <div className="mt-2">
+          <button
+            disabled={!token1WithdrawAvailable}
+            className={`bg-red-400 rounded-xl text-md py-1 px-8 ${!token1WithdrawAvailable && "bg-gray-600 text-gray-800"}`}
+            onClick={withdrawToken1}
+          >
+            Send Me {swapExContext?.token1Symbol}
+          </button>
+          {!token1WithdrawAvailable && (
+            <p className="text-sm mt-1">
+              Withdraw Available At {moment(faucetContext?.token1WithdrawAvailableTimestamp).format("DD/MM/YYYY, h:mm:ss a")}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

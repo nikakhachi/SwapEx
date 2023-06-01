@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useEffect } from "react";
-import { useContractRead, useAccount, useContractReads, useContractWrite } from "wagmi";
+import { useContractRead, useAccount, useContractWrite } from "wagmi";
 import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
 import { BigNumberish } from "ethers";
@@ -19,6 +19,7 @@ type SwapExContextType = {
   addLiquidity: (token0Amount: number, token1Amount: number) => void;
   balanceOfToken0: number;
   balanceOfToken1: number;
+  fetchBalances: () => void;
 };
 
 export const SwapExContext = createContext<SwapExContextType | null>(null);
@@ -159,6 +160,11 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     addLiquidityTx({ args: [ethers.parseUnits(String(token0Amount)), ethers.parseUnits(String(token1Amount))] });
   };
 
+  const fetchBalances = () => {
+    fetchBalanceOfToken0();
+    fetchBalanceOfToken1();
+  };
+
   const value = {
     token0Address: token0Address as string,
     token1Address: token1Address as string,
@@ -173,6 +179,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     removeLiquidity,
     balanceOfToken0: Number(ethers.formatUnits((balanceOfToken0 as BigNumberish) || 0)),
     balanceOfToken1: Number(ethers.formatUnits((balanceOfToken1 as BigNumberish) || 0)),
+    fetchBalances,
   };
 
   return <SwapExContext.Provider value={value}>{children}</SwapExContext.Provider>;

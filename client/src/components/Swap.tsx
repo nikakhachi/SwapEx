@@ -1,4 +1,4 @@
-import { FC, useContext, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
 
 enum TokenToSell {
@@ -21,6 +21,10 @@ export const Swap: FC = () => {
   const [tokenToSell, setTokenToSell] = useState(TokenToSell.TOKEN0);
 
   const [amountToSell, setAmountToSell] = useState(0);
+
+  useEffect(() => {
+    swapExContext?.fetchBalances();
+  }, []);
 
   if (!swapExContext) return null;
 
