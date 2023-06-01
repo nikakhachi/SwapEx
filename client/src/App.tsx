@@ -33,15 +33,17 @@ function App() {
         <Tab value={TabEnum.FAUCET} label="Faucet" />
         <Tab value={TabEnum.STAKER} label="Staker" />
       </Tabs>
-      {tab === TabEnum.SWAP ? (
-        <Swap />
-      ) : tab === TabEnum.LIQUIDITY ? (
-        <Liquidity />
-      ) : tab === TabEnum.FAUCET ? (
-        <Faucet />
-      ) : tab === TabEnum.STAKER ? (
-        <Staker />
-      ) : null}
+      <div style={{ width: "100%", justifyContent: "center", display: "flex" }}>
+        {tab === TabEnum.SWAP ? (
+          <Swap />
+        ) : tab === TabEnum.LIQUIDITY ? (
+          <Liquidity />
+        ) : tab === TabEnum.FAUCET ? (
+          <Faucet />
+        ) : tab === TabEnum.STAKER ? (
+          <Staker />
+        ) : null}
+      </div>
     </div>
   );
 }

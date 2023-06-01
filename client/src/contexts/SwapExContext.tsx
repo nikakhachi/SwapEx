@@ -17,6 +17,8 @@ type SwapExContextType = {
   approve: (tokenAddress: string, amount: number) => void;
   removeLiquidity: (shares: number) => void;
   addLiquidity: (token0Amount: number, token1Amount: number) => void;
+  balanceOfToken0: number;
+  balanceOfToken1: number;
 };
 
 export const SwapExContext = createContext<SwapExContextType | null>(null);
@@ -88,6 +90,20 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: SWAPEX_ABI,
     functionName: "addLiquidity",
   });
+  const { data: balanceOfToken0, refetch: fetchBalanceOfToken0 } = useContractRead({
+    address: token0Address as `0x${string}`,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    enabled: false,
+    args: [address],
+  });
+  const { data: balanceOfToken1, refetch: fetchBalanceOfToken1 } = useContractRead({
+    address: token1Address as `0x${string}`,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    enabled: false,
+    args: [address],
+  });
 
   useEffect(() => {
     if (token0Address) {
@@ -108,9 +124,18 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [address]);
 
   useEffect(() => {
+    if (address && token1Address && token0Address) {
+      fetchBalanceOfToken0();
+      fetchBalanceOfToken1();
+    }
+  }, [address, token1Address, token0Address]);
+
+  useEffect(() => {
     if (onSwapSuccess || onRemoveLiquiditySuccess || onAddLiquiditySuccess) {
       refetchToken0Reserve();
       refetchToken1Reserve();
+      fetchBalanceOfToken0();
+      fetchBalanceOfToken1();
     }
   }, [onSwapSuccess, onRemoveLiquiditySuccess, onAddLiquiditySuccess]);
 
@@ -137,15 +162,17 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const value = {
     token0Address: token0Address as string,
     token1Address: token1Address as string,
-    token0Reserve: Math.round(Number(ethers.formatUnits(token0Reserve as BigNumberish))),
-    token1Reserve: Math.round(Number(ethers.formatUnits(token1Reserve as BigNumberish))),
+    token0Reserve: Number(ethers.formatUnits(token0Reserve as BigNumberish)),
+    token1Reserve: Number(ethers.formatUnits(token1Reserve as BigNumberish)),
     token0Symbol: token0Symbol as string,
     token1Symbol: token1Symbol as string,
-    lpTokenAmount: !lpTokenAmount ? 0 : Math.round(Number(ethers.formatUnits(lpTokenAmount as BigNumberish))),
+    lpTokenAmount: !lpTokenAmount ? 0 : Number(ethers.formatUnits(lpTokenAmount as BigNumberish)),
     swap,
     approve,
     addLiquidity,
     removeLiquidity,
+    balanceOfToken0: Number(ethers.formatUnits((balanceOfToken0 as BigNumberish) || 0)),
+    balanceOfToken1: Number(ethers.formatUnits((balanceOfToken1 as BigNumberish) || 0)),
   };
 
   return <SwapExContext.Provider value={value}>{children}</SwapExContext.Provider>;
