@@ -2,6 +2,7 @@ import React, { createContext, PropsWithChildren, useEffect } from "react";
 import { useContractRead, useAccount, useContractWrite } from "wagmi";
 import { ethers, BigNumberish } from "ethers";
 import { STAKER_ABI, STAKER_ADDRESS } from "../contracts/Staker";
+import { ERC20_ABI } from "../contracts/ERC20";
 
 type StakerContextType = {
   totalRewardsToGive: number;
@@ -11,12 +12,18 @@ type StakerContextType = {
   stake: (amount: number) => void;
   withdraw: () => void;
   getRewards: () => void;
+  rewardsTokenSymbol: string;
 };
 
 export const StakerContext = createContext<StakerContextType | null>(null);
 
 export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const { address } = useAccount();
+  const { data: rewardsToken } = useContractRead({
+    address: STAKER_ADDRESS,
+    abi: STAKER_ABI,
+    functionName: "rewardsToken",
+  });
   const { data: totalRewardsToGive } = useContractRead({
     address: STAKER_ADDRESS,
     abi: STAKER_ABI,
@@ -56,6 +63,11 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: STAKER_ABI,
     functionName: "getRewards",
   });
+  const { data: rewardsTokenSymbol, refetch: fetchRewardsTokenSymbol } = useContractRead({
+    address: rewardsToken as `0x${string}`,
+    abi: ERC20_ABI,
+    functionName: "symbol",
+  });
 
   useEffect(() => {
     if (address) {
@@ -63,6 +75,12 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
       refetchUserRewards();
     }
   }, [address]);
+
+  useEffect(() => {
+    if (rewardsToken) {
+      fetchRewardsTokenSymbol();
+    }
+  }, [rewardsToken]);
 
   useEffect(() => {
     if (onGetRewardsSuccess) {
@@ -103,6 +121,7 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     stake,
     withdraw,
     getRewards,
+    rewardsTokenSymbol: rewardsTokenSymbol as string,
   };
 
   return <StakerContext.Provider value={value}>{children}</StakerContext.Provider>;

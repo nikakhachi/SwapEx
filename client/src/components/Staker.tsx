@@ -1,13 +1,13 @@
 import { FC, useContext, useState } from "react";
-import { SwapExContext } from "../contexts/SwapExContext";
 import moment from "moment";
 import { StakerContext } from "../contexts/StakerContext";
 
 export const Staker: FC = () => {
-  const swapExContext = useContext(SwapExContext);
   const stakerContext = useContext(StakerContext);
 
   const [ethToStake, setEthToStake] = useState(0);
+
+  const isLate = moment(stakerContext?.finishAt).diff(moment()) > 0;
 
   const stake = () => {
     stakerContext?.stake(ethToStake);
@@ -22,32 +22,45 @@ export const Staker: FC = () => {
   };
 
   return (
-    <div style={{ border: "1px solid white", padding: "0.5rem 2rem", marginTop: "2rem" }}>
-      <h4>Staker</h4>
-      <p>Total Rewards Given Out {stakerContext?.totalRewardsToGive}</p>
-      <p>Ends At {moment(stakerContext?.finishAt).format("DD/MM/YYYY, h:mm:ss a")}</p>
-      <p>Stake Ethereum in order to get {swapExContext?.token0Symbol} rewards</p>
-      <p>Rewards Earned: {stakerContext?.userRewards}</p>{" "}
+    <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+      <p className="text-2xl">
+        Total Rewards To Give - {stakerContext?.totalRewardsToGive} {stakerContext?.rewardsTokenSymbol}
+      </p>
+      <p className="text-2xl">
+        {isLate ? "Ended" : "Ends"} At - {moment(stakerContext?.finishAt).format("DD/MM/YYYY, h:mm:ss a")}
+      </p>
+      <p className="mt-2 mb-2 text-xl underline">Stake Ethereum in order to get rewards</p>
+      <p className="text-xl mb-2">
+        Rewards Earned: {stakerContext?.userRewards} {stakerContext?.rewardsTokenSymbol}
+      </p>
       {stakerContext?.userRewards !== 0 && (
         <div>
-          <button onClick={getRewards}>Get Rewards</button>
+          <button className="bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={getRewards}>
+            Get Rewards
+          </button>
         </div>
       )}
-      {!stakerContext?.stakedBalance ? (
+      {stakerContext?.stakedBalance ? (
         <>
-          <input value={ethToStake} onChange={(e) => setEthToStake(Number(e.target.value))} />
+          <p className="text-xl mb-2">
+            Staked Amount: {stakerContext?.stakedBalance} {stakerContext?.rewardsTokenSymbol}
+          </p>
           <div>
-            <button onClick={stake}>Stake</button>
+            <button className="mt-2 bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={withdraw}>
+              Withdraw
+            </button>
           </div>
         </>
-      ) : (
+      ) : !isLate ? (
         <>
-          <p>Staked Amount: {stakerContext?.stakedBalance}</p>
+          <input className="text-2xl rounded-xl px-4" value={ethToStake} onChange={(e) => setEthToStake(Number(e.target.value))} />
           <div>
-            <button onClick={withdraw}>Withdraw</button>
+            <button className="mt-2 bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={stake}>
+              Stake
+            </button>
           </div>
         </>
-      )}
+      ) : null}
     </div>
   );
 };
