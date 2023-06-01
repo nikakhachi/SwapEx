@@ -1,6 +1,5 @@
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, useContext, useState } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
-import { shortenAddress } from "../utils";
 
 enum TokenToSell {
   TOKEN0,
