@@ -17,33 +17,67 @@ export const Liquidity: FC = () => {
   };
 
   return (
-    <div style={{ border: "1px solid white", padding: "0.5rem 2rem", marginTop: "2rem" }}>
-      <h4>LIQUIDITY</h4>
-      <p>LP Tokens: {swapExContext?.lpTokenAmount}</p>
+    <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+      <p className="text-2xl">LP Tokens: {swapExContext?.lpTokenAmount}</p>
       {swapExContext?.lpTokenAmount !== 0 && (
         <div>
-          <input value={sharesToRemove} onChange={(e) => setSharesToRemove(Number(e.target.value))} type="number" />
+          <input
+            className="text-2xl rounded-xl px-4 mt-2 mb-1"
+            value={sharesToRemove}
+            onChange={(e) => setSharesToRemove(Number(e.target.value))}
+            type="number"
+          />
           <div>
-            <button onClick={removeLiquidity}>Remove Liquidity</button>
+            <button className="mt-2 bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={removeLiquidity}>
+              Remove Liquidity
+            </button>
           </div>
         </div>
       )}
-      <p>
+      <p className="text-xl">
         {swapExContext?.token0Symbol} Reserve: {swapExContext?.token0Reserve} tokens
       </p>
-      <p>
+      <p className="text-xl">
         {swapExContext?.token1Symbol} Reserve: {swapExContext?.token1Reserve} tokens
       </p>
-      <div>
-        {swapExContext?.token0Symbol} to provide:{" "}
-        <input value={token0ToProvide} onChange={(e) => setToken0ToProvide(Number(e.target.value))} type="number" />
+
+      <div className="flex gap-2 mb-1 mt-2">
+        <p className="text-xl">{swapExContext?.token0Symbol} to provide: </p>
+        <input
+          className="text-xl rounded-xl px-2"
+          value={token0ToProvide}
+          onChange={(e) => setToken0ToProvide(Number(e.target.value))}
+          type="number"
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <p className="text-xl">{swapExContext?.token1Symbol} to provide: </p>
+        <input
+          className="text-xl rounded-xl px-2"
+          value={token1ToProvide}
+          onChange={(e) => setToken1ToProvide(Number(e.target.value))}
+          type="number"
+        />
       </div>
       <div>
-        {swapExContext?.token1Symbol} to provide:{" "}
-        <input value={token1ToProvide} onChange={(e) => setToken1ToProvide(Number(e.target.value))} type="number" />
-      </div>
-      <div>
-        <button onClick={addLiquidity}>Add Liquidity</button>
+        <div className="mt-2 flex gap-2">
+          <button
+            className="bg-red-400 rounded-xl text-md py-1 px-8"
+            onClick={() => swapExContext?.approve(swapExContext.token0Address, token0ToProvide)}
+          >
+            Approve {swapExContext?.token0Symbol}
+          </button>
+          <button
+            className="bg-red-400 rounded-xl text-md py-1 px-8"
+            onClick={() => swapExContext?.approve(swapExContext.token1Address, token1ToProvide)}
+          >
+            Approve {swapExContext?.token1Symbol}
+          </button>
+        </div>
+        <button className="mt-4 bg-red-400 rounded-xl text-md py-1 px-8 mb-4 w-full" onClick={addLiquidity}>
+          Add Liquidity
+        </button>
       </div>
     </div>
   );

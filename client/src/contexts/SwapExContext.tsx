@@ -137,6 +137,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
       refetchToken1Reserve();
       fetchBalanceOfToken0();
       fetchBalanceOfToken1();
+      fetchLpTokenAmount();
     }
   }, [onSwapSuccess, onRemoveLiquiditySuccess, onAddLiquiditySuccess]);
 
