@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useEffect } from "react";
-import { useContractRead, useAccount, useContractReads, useContractWrite } from "wagmi";
+import { useContractRead, useAccount, useContractWrite } from "wagmi";
 import { TOKEN0_FAUCET_ADDRESS, FAUCET_ABI, TOKEN1_FAUCET_ADDRESS } from "../contracts/Faucet";
 import { ethers, BigNumberish } from "ethers";
 
