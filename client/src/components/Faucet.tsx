@@ -35,6 +35,7 @@ export const Faucet: FC = () => {
           >
             Send Me {swapExContext?.token0Symbol}
           </button>
+          <p className="text-xs mt-1">Faucet Balance: {faucetContext?.balanceOfToken0}</p>
           {!token0WithdrawAvailable && (
             <p className="text-sm mt-1">
               Withdraw Available At {moment(faucetContext?.token0WithdrawAvailableTimestamp).format("DD/MM/YYYY, h:mm:ss a")}
@@ -57,6 +58,7 @@ export const Faucet: FC = () => {
           >
             Send Me {swapExContext?.token1Symbol}
           </button>
+          <p className="text-xs mt-1">Faucet Balance: {faucetContext?.balanceOfToken1}</p>
           {!token1WithdrawAvailable && (
             <p className="text-sm mt-1">
               Withdraw Available At {moment(faucetContext?.token1WithdrawAvailableTimestamp).format("DD/MM/YYYY, h:mm:ss a")}

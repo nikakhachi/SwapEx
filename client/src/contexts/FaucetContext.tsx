@@ -2,6 +2,7 @@ import React, { createContext, PropsWithChildren, useEffect } from "react";
 import { useContractRead, useAccount, useContractWrite } from "wagmi";
 import { TOKEN0_FAUCET_ADDRESS, FAUCET_ABI, TOKEN1_FAUCET_ADDRESS } from "../contracts/Faucet";
 import { ethers, BigNumberish } from "ethers";
+import { ERC20_ABI } from "../contracts/ERC20";
 
 type FaucetContextType = {
   token0WithdrawableAmountPerCall: number;
@@ -10,12 +11,24 @@ type FaucetContextType = {
   token1WithdrawAvailableTimestamp: Date;
   withdrawToken0: () => void;
   withdrawToken1: () => void;
+  balanceOfToken0: number;
+  balanceOfToken1: number;
 };
 
 export const FaucetContext = createContext<FaucetContextType | null>(null);
 
 export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const { address } = useAccount();
+  const { data: token0Address } = useContractRead({
+    address: TOKEN0_FAUCET_ADDRESS,
+    abi: FAUCET_ABI,
+    functionName: "token",
+  });
+  const { data: token1Address } = useContractRead({
+    address: TOKEN1_FAUCET_ADDRESS,
+    abi: FAUCET_ABI,
+    functionName: "token",
+  });
   const { data: token0WithdrawableAmountPerCall } = useContractRead({
     address: TOKEN0_FAUCET_ADDRESS,
     abi: FAUCET_ABI,
@@ -52,11 +65,27 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: FAUCET_ABI,
     functionName: "withdraw",
   });
+  const { data: balanceOfToken0, refetch: fetchBalanceOfToken0 } = useContractRead({
+    address: token0Address as `0x${string}`,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    enabled: false,
+    args: [TOKEN0_FAUCET_ADDRESS],
+  });
+  const { data: balanceOfToken1, refetch: fetchBalanceOfToken1 } = useContractRead({
+    address: token1Address as `0x${string}`,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    enabled: false,
+    args: [TOKEN1_FAUCET_ADDRESS],
+  });
 
   useEffect(() => {
     if (address || onToken0WithdrawalSuccess || onToken1WithdrawalSuccess) {
       fetchToken0WithdrawalTime();
       fetchToken1WithdrawalTime();
+      fetchBalanceOfToken0();
+      fetchBalanceOfToken1();
     }
   }, [address, onToken0WithdrawalSuccess, onToken1WithdrawalSuccess]);
 
@@ -75,6 +104,8 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
     token1WithdrawAvailableTimestamp: new Date(Number(token1WithdrawalTime || 0) * 1000),
     withdrawToken0,
     withdrawToken1,
+    balanceOfToken0: Number(ethers.formatUnits((balanceOfToken0 as BigNumberish) || 0)),
+    balanceOfToken1: Number(ethers.formatUnits((balanceOfToken1 as BigNumberish) || 0)),
   };
 
   return <FaucetContext.Provider value={value}>{children}</FaucetContext.Provider>;
