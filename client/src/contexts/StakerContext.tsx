@@ -32,12 +32,14 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: STAKER_ABI,
     functionName: "stakedBalanceOf",
     args: [address],
+    enabled: false,
   });
   const { data: userRewards, refetch: refetchUserRewards } = useContractRead({
     address: STAKER_ADDRESS,
     abi: STAKER_ABI,
     functionName: "userRewards",
     args: [address],
+    enabled: false,
   });
   const { write: stakeTx, isSuccess: onStakeSuccess } = useContractWrite({
     address: STAKER_ADDRESS,
@@ -96,7 +98,7 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const value = {
     totalRewardsToGive: Number(ethers.formatUnits(totalRewardsToGive as BigNumberish)),
     finishAt: new Date(Number(finishAt) * 1000),
-    stakedBalance: Number(ethers.formatUnits(stakedBalance as BigNumberish)),
+    stakedBalance: Number(ethers.formatUnits((stakedBalance as BigNumberish) || 0)),
     userRewards: Number(ethers.formatUnits((userRewards as BigNumberish) || 0)),
     stake,
     withdraw,
