@@ -1,6 +1,7 @@
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, useCallback, useContext, useEffect, useState } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
 import { Button } from "./Button";
+import { debounce } from "lodash";
 
 enum TokenToSell {
   TOKEN0,
@@ -23,9 +24,31 @@ export const Swap: FC = () => {
 
   const [amountToSell, setAmountToSell] = useState(0);
 
+  const [amountToGet, setAmountToGet] = useState(0);
+
+  const debounceFunc = useCallback(
+    debounce((tokenIn: string, tokenInAmount: number) => {
+      swapExContext?.fetchTokenOutputForSwap(tokenIn, tokenInAmount);
+    }, 100),
+    []
+  );
+
   useEffect(() => {
     swapExContext?.fetchBalances();
   }, []);
+
+  useEffect(() => {
+    debounceFunc(
+      tokenToSell === TokenToSell.TOKEN0 ? (swapExContext?.token0Address as string) : (swapExContext?.token1Address as string),
+      amountToSell
+    );
+  }, [tokenToSell, amountToSell]);
+
+  useEffect(() => {
+    if (swapExContext?.tokenOutputForSwap) {
+      setAmountToGet(swapExContext?.tokenOutputForSwap);
+    }
+  }, [swapExContext?.tokenOutputForSwap]);
 
   if (!swapExContext) return null;
 
@@ -85,7 +108,7 @@ export const Swap: FC = () => {
       </div>
       <div className="bg-gray-200 rounded-3xl px-4 py-2 text-black w-full">
         <div className="flex justify-between">
-          <input disabled className="bg-gray-200 outline-0 text-2xl w-36	text-gray-500" value={4.76} />
+          <input disabled className="bg-gray-200 outline-0 text-2xl w-72	text-gray-500" value={amountToGet} />
           <p className="text-2xl">{tokenData.toBuySymbol}</p>
         </div>
         <div style={{ display: "flex", justifyContent: "right" }}>

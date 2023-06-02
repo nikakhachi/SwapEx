@@ -23,21 +23,13 @@ contract SwapEx is ERC20 {
         );
 
         bool isToken0 = _tokenIn == address(token0);
-        (
-            ERC20 tokenIn,
-            ERC20 tokenOut,
-            uint reserveIn,
-            uint reserveOut
-        ) = isToken0
-                ? (token0, token1, reserve0, reserve1)
-                : (token1, token0, reserve1, reserve0);
+        (ERC20 tokenIn, ERC20 tokenOut) = isToken0
+            ? (token0, token1)
+            : (token1, token0);
 
         tokenIn.transferFrom(msg.sender, address(this), _amountIn);
 
-        uint amountInWithFees = (_amountIn * 995) / 1000; // 0.5% fees
-        // y△ = (y * x△) / (x + x△)
-        uint amountOut = (reserveOut * amountInWithFees) /
-            (reserveIn + amountInWithFees);
+        uint amountOut = calculateAmountOut(_tokenIn, _amountIn);
 
         // We are updating like this and not like "token0.getBalance" because
         // users can manipulate the balances by directly sending funds to us and
@@ -50,6 +42,27 @@ contract SwapEx is ERC20 {
         }
 
         tokenOut.transfer(msg.sender, amountOut);
+        return amountOut;
+    }
+
+    function calculateAmountOut(
+        address _tokenIn,
+        uint _amountIn
+    ) public view returns (uint) {
+        require(
+            _tokenIn == address(token0) || _tokenIn == address(token1),
+            "invalid _tokenIn"
+        );
+
+        (uint reserveIn, uint reserveOut) = _tokenIn == address(token0)
+            ? (reserve0, reserve1)
+            : (reserve1, reserve0);
+
+        uint amountInWithFees = (_amountIn * 995) / 1000; // 0.5% fees
+        // y△ = (y * x△) / (x + x△)
+        uint amountOut = (reserveOut * amountInWithFees) /
+            (reserveIn + amountInWithFees);
+
         return amountOut;
     }
 

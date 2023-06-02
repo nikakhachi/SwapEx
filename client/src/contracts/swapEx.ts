@@ -158,6 +158,30 @@ export const SWAPEX_ABI = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_tokenIn",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amountIn",
+        type: "uint256",
+      },
+    ],
+    name: "calculateAmountOut",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "decimals",
     outputs: [
