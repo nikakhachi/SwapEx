@@ -7,7 +7,7 @@ export const Staker: FC = () => {
 
   const [ethToStake, setEthToStake] = useState(0);
 
-  const isLate = moment(stakerContext?.finishAt).diff(moment()) > 0;
+  const isLate = moment(stakerContext?.finishAt).diff(moment()) < 0;
 
   const stake = () => {
     stakerContext?.stake(ethToStake);
