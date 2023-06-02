@@ -232,6 +232,13 @@ export const SWAPEX_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "removeAllLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -260,6 +267,30 @@ export const SWAPEX_ABI = [
   {
     inputs: [],
     name: "reserve1",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_tokenOne",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_tokenOneIn",
+        type: "uint256",
+      },
+    ],
+    name: "secondTokenLiquidityAmount",
     outputs: [
       {
         internalType: "uint256",

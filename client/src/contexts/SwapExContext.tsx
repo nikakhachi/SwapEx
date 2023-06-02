@@ -1,4 +1,4 @@
-import React, { createContext, PropsWithChildren, useEffect } from "react";
+import React, { createContext, PropsWithChildren, useEffect, useState } from "react";
 import { useContractRead, useAccount, useContractWrite } from "wagmi";
 import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
@@ -16,16 +16,22 @@ type SwapExContextType = {
   swap: (tokenIn: string, amountIn: number) => void;
   approve: (tokenAddress: string, amount: number) => void;
   removeLiquidity: (shares: number) => void;
+  removeAllLiquidity: () => void;
   addLiquidity: (token0Amount: number, token1Amount: number) => void;
   balanceOfToken0: number;
   balanceOfToken1: number;
   fetchBalances: () => void;
+  secondTokenAmountForRatio: number;
+  fetchSecondTokenAmountForRatio: (tokenOne: string, tokenOneAmount: number) => void;
 };
 
 export const SwapExContext = createContext<SwapExContextType | null>(null);
 
 export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const { address } = useAccount();
+
+  const [tokenOneInForLiquidity, setTokenOneInForLiqudiity] = useState("");
+  const [tokenOneInAmountForLiquidity, setTokenOneInAmountForLiqudiity] = useState(0);
 
   const { data: token0Address } = useContractRead({
     address: SWAPEX_ADDRESS,
@@ -86,6 +92,11 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: SWAPEX_ABI,
     functionName: "removeLiquidity",
   });
+  const { write: removeAllLiquidityTx, isSuccess: onRemoveAllLiquiditySuccess } = useContractWrite({
+    address: SWAPEX_ADDRESS,
+    abi: SWAPEX_ABI,
+    functionName: "removeAllLiquidity",
+  });
   const { write: addLiquidityTx, isSuccess: onAddLiquiditySuccess } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
@@ -104,6 +115,13 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "balanceOf",
     enabled: false,
     args: [address],
+  });
+  const { data: tokenAmountForRatio, refetch: fetchTokenAmountForRatioTx } = useContractRead({
+    address: SWAPEX_ADDRESS,
+    abi: SWAPEX_ABI,
+    functionName: "secondTokenLiquidityAmount",
+    args: [tokenOneInForLiquidity, ethers.parseEther(String(tokenOneInAmountForLiquidity))],
+    enabled: false,
   });
 
   useEffect(() => {
@@ -132,14 +150,20 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [address, token1Address, token0Address]);
 
   useEffect(() => {
-    if (onSwapSuccess || onRemoveLiquiditySuccess || onAddLiquiditySuccess) {
+    if (onSwapSuccess || onRemoveLiquiditySuccess || onAddLiquiditySuccess || onRemoveAllLiquiditySuccess) {
       refetchToken0Reserve();
       refetchToken1Reserve();
       fetchBalanceOfToken0();
       fetchBalanceOfToken1();
       fetchLpTokenAmount();
     }
-  }, [onSwapSuccess, onRemoveLiquiditySuccess, onAddLiquiditySuccess]);
+  }, [onSwapSuccess, onRemoveLiquiditySuccess, onAddLiquiditySuccess, onRemoveAllLiquiditySuccess]);
+
+  useEffect(() => {
+    if (tokenOneInAmountForLiquidity) {
+      fetchTokenAmountForRatioTx();
+    }
+  }, [tokenOneInAmountForLiquidity]);
 
   const swap = (tokenIn: string, amountIn: number) => {
     swapTokens({ args: [tokenIn, ethers.parseUnits(String(amountIn))] });
@@ -157,6 +181,10 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     removeLiquidityTx({ args: [ethers.parseUnits(String(shares))] });
   };
 
+  const removeAllLiquidity = () => {
+    removeAllLiquidityTx();
+  };
+
   const addLiquidity = (token0Amount: number, token1Amount: number) => {
     addLiquidityTx({ args: [ethers.parseUnits(String(token0Amount)), ethers.parseUnits(String(token1Amount))] });
   };
@@ -164,6 +192,11 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const fetchBalances = () => {
     fetchBalanceOfToken0();
     fetchBalanceOfToken1();
+  };
+
+  const fetchSecondTokenAmountForRatio = (tokenOne: string, tokenOneIn: number) => {
+    setTokenOneInForLiqudiity(tokenOne);
+    setTokenOneInAmountForLiqudiity(tokenOneIn);
   };
 
   const value = {
@@ -181,6 +214,9 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     balanceOfToken0: Number(ethers.formatUnits((balanceOfToken0 as BigNumberish) || 0)),
     balanceOfToken1: Number(ethers.formatUnits((balanceOfToken1 as BigNumberish) || 0)),
     fetchBalances,
+    removeAllLiquidity,
+    secondTokenAmountForRatio: Number(ethers.formatUnits((tokenAmountForRatio as BigNumberish) || 0)),
+    fetchSecondTokenAmountForRatio,
   };
 
   return <SwapExContext.Provider value={value}>{children}</SwapExContext.Provider>;

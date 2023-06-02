@@ -63,7 +63,12 @@ contract SwapEx is ERC20 {
         token1.transferFrom(msg.sender, address(this), _amount1);
 
         // x△ / y△ = x / y
-        if (_amount0 > 0) require(_amount0 * reserve1 == _amount1 * reserve0);
+        if (reserve0 > 0)
+            require(
+                _amount0 ==
+                    secondTokenLiquidityAmount(address(token1), _amount1),
+                "Invalid Ratio"
+            );
 
         // Liquidity = root from xy
         // Shares = x△ / x * T = y△ / y * T
@@ -83,7 +88,7 @@ contract SwapEx is ERC20 {
         _update(reserve0 + _amount0, reserve1 + _amount1);
     }
 
-    function removeLiquidity(uint _shares) external {
+    function removeLiquidity(uint _shares) public {
         require(_shares > 0);
 
         // Shares = dx / x * T = dy / y * T
@@ -99,6 +104,25 @@ contract SwapEx is ERC20 {
 
         token0.transfer(msg.sender, token0Out);
         token1.transfer(msg.sender, token1Out);
+    }
+
+    function removeAllLiquidity() external {
+        removeLiquidity(balanceOf(msg.sender));
+    }
+
+    function secondTokenLiquidityAmount(
+        address _tokenOne,
+        uint _tokenOneIn
+    ) public view returns (uint) {
+        // x△ / y△ = x / y
+        // y△ = y * x△ / x
+        if (_tokenOne == address(token0)) {
+            return (reserve1 * _tokenOneIn) / reserve0;
+        } else if (_tokenOne == address(token1)) {
+            return (reserve0 * _tokenOneIn) / reserve1;
+        } else {
+            revert("Invalid _tokenOne");
+        }
     }
 
     function _update(uint _reserve0, uint _reserve1) private {
