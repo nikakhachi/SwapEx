@@ -1,5 +1,6 @@
 import { FC, useContext, useEffect, useState } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
+import { Button } from "./Button";
 
 enum TokenToSell {
   TOKEN0,
@@ -92,12 +93,8 @@ export const Swap: FC = () => {
         </div>
       </div>
       <div className="w-full flex justify-between mt-8">
-        <button className="w-full bg-red-400 rounded-xl text-xl py-1" onClick={approve} style={{ marginRight: "1rem" }}>
-          Approve
-        </button>
-        <button className="w-full bg-red-400 rounded-xl text-xl	py-1" onClick={swap}>
-          Swap
-        </button>
+        <Button text="Approve" onClick={approve} className="w-full mr-8" />
+        <Button text="Swap" onClick={swap} className="w-full" />
       </div>
     </>
   );

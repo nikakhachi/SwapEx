@@ -1,6 +1,7 @@
 import { FC, useContext, useState } from "react";
 import moment from "moment";
 import { StakerContext } from "../contexts/StakerContext";
+import { Button } from "./Button";
 
 export const Staker: FC = () => {
   const stakerContext = useContext(StakerContext);
@@ -35,9 +36,7 @@ export const Staker: FC = () => {
       </p>
       {stakerContext?.userRewards !== 0 && (
         <div>
-          <button className="bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={getRewards}>
-            Get Rewards
-          </button>
+          <Button text="Get Rewards" className="mb-4" onClick={getRewards} />
         </div>
       )}
       {stakerContext?.stakedBalance ? (
@@ -46,18 +45,14 @@ export const Staker: FC = () => {
             Staked Amount: {stakerContext?.stakedBalance} {stakerContext?.rewardsTokenSymbol}
           </p>
           <div>
-            <button className="mt-2 bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={withdraw}>
-              Withdraw
-            </button>
+            <Button text="Withdraw" className="mt-2 mb-4" onClick={withdraw} />
           </div>
         </>
       ) : !isLate ? (
         <>
           <input className="text-2xl rounded-xl px-4" value={ethToStake} onChange={(e) => setEthToStake(Number(e.target.value))} />
           <div>
-            <button className="mt-2 bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={stake}>
-              Stake
-            </button>
+            <Button text="Stake" className="mt-2 mb-4" onClick={stake} />
           </div>
         </>
       ) : null}

@@ -2,6 +2,7 @@ import { FC, useContext } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
 import { FaucetContext } from "../contexts/FaucetContext";
 import moment from "moment";
+import { Button } from "./Button";
 
 export const Faucet: FC = () => {
   const swapExContext = useContext(SwapExContext);
@@ -28,13 +29,13 @@ export const Faucet: FC = () => {
           </span>
         </p>
         <div className="mt-2">
-          <button
+          <Button
             disabled={!token0WithdrawAvailable}
-            className={`bg-red-400 rounded-xl text-md py-1 px-8 ${!token0WithdrawAvailable && "bg-gray-600 text-gray-800"}`}
+            text={`Send Me ${swapExContext?.token0Symbol}`}
             onClick={withdrawToken0}
-          >
-            Send Me {swapExContext?.token0Symbol}
-          </button>
+            className={`${!token0WithdrawAvailable && "bg-gray-500 text-gray-800"}`}
+          />
+
           <p className="text-xs mt-1">Faucet Balance: {faucetContext?.balanceOfToken0}</p>
           {!token0WithdrawAvailable && (
             <p className="text-sm mt-1">
@@ -51,13 +52,12 @@ export const Faucet: FC = () => {
           </span>
         </p>
         <div className="mt-2">
-          <button
+          <Button
             disabled={!token1WithdrawAvailable}
-            className={`bg-red-400 rounded-xl text-md py-1 px-8 ${!token1WithdrawAvailable && "bg-gray-600 text-gray-800"}`}
+            text={`Send Me ${swapExContext?.token1Symbol}`}
             onClick={withdrawToken1}
-          >
-            Send Me {swapExContext?.token1Symbol}
-          </button>
+            className={`${!token1WithdrawAvailable && "bg-gray-500 text-gray-800"}`}
+          />
           <p className="text-xs mt-1">Faucet Balance: {faucetContext?.balanceOfToken1}</p>
           {!token1WithdrawAvailable && (
             <p className="text-sm mt-1">

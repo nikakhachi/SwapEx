@@ -1,6 +1,7 @@
 import { FC, useCallback, useContext, useEffect, useState } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
 import { debounce } from "lodash";
+import { Button } from "./Button";
 
 export const Liquidity: FC = () => {
   const swapExContext = useContext(SwapExContext);
@@ -67,12 +68,8 @@ export const Liquidity: FC = () => {
             type="number"
           />
           <div>
-            <button className="mt-2 bg-red-400 rounded-xl text-md py-1 px-8 mb-4" onClick={removeLiquidity}>
-              Remove Liquidity
-            </button>
-            <button className="mt-2 bg-red-400 rounded-xl text-md py-1 px-8 mb-4 ml-4" onClick={removeAllLiquidity}>
-              Remove All Liquidity
-            </button>
+            <Button text="Remove Liquidity" onClick={removeLiquidity} className="mt-2 mb-4" />
+            <Button text="Remove All Liquidity" onClick={removeAllLiquidity} className="mt-2 mb-4 ml-4" />
           </div>
         </div>
       )}
@@ -104,22 +101,16 @@ export const Liquidity: FC = () => {
       </div>
       <div>
         <div className="mt-2 flex gap-2">
-          <button
-            className="bg-red-400 rounded-xl text-md py-1 px-8"
+          <Button
+            text={`Approve ${swapExContext?.token0Symbol}`}
             onClick={() => swapExContext?.approve(swapExContext.token0Address, token0ToProvide)}
-          >
-            Approve {swapExContext?.token0Symbol}
-          </button>
-          <button
-            className="bg-red-400 rounded-xl text-md py-1 px-8"
+          />
+          <Button
+            text={`Approve ${swapExContext?.token1Symbol}`}
             onClick={() => swapExContext?.approve(swapExContext.token1Address, token1ToProvide)}
-          >
-            Approve {swapExContext?.token1Symbol}
-          </button>
+          />
         </div>
-        <button className="mt-4 bg-red-400 rounded-xl text-md py-1 px-8 mb-4 w-full" onClick={addLiquidity}>
-          Add Liquidity
-        </button>
+        <Button text={`Add Liquidity`} onClick={addLiquidity} className="mt-4 mb-4 w-full" />
       </div>
     </>
   );
