@@ -19,7 +19,7 @@ export const Faucet: FC = () => {
   };
 
   return (
-    <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+    <>
       <div>
         <p className="text-2xl">
           {swapExContext?.token0Symbol}{" "}
@@ -66,6 +66,6 @@ export const Faucet: FC = () => {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };

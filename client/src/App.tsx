@@ -24,7 +24,7 @@ function App() {
 
   return (
     <div>
-      <div style={{ width: "100%", display: "flex", justifyContent: "center", margin: "2rem 0 5rem 0" }}>
+      <div className="w-full flex justify-center mt-4 mb-8">
         <ConnectButton />
       </div>
       <Tabs value={tab} onChange={handleChange} centered>
@@ -33,16 +33,18 @@ function App() {
         <Tab value={TabEnum.FAUCET} label="Faucet" />
         <Tab value={TabEnum.STAKER} label="Staker" />
       </Tabs>
-      <div style={{ width: "100%", justifyContent: "center", display: "flex" }}>
-        {tab === TabEnum.SWAP ? (
-          <Swap />
-        ) : tab === TabEnum.LIQUIDITY ? (
-          <Liquidity />
-        ) : tab === TabEnum.FAUCET ? (
-          <Faucet />
-        ) : tab === TabEnum.STAKER ? (
-          <Staker />
-        ) : null}
+      <div className="w-full flex justify-center">
+        <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+          {tab === TabEnum.SWAP ? (
+            <Swap />
+          ) : tab === TabEnum.LIQUIDITY ? (
+            <Liquidity />
+          ) : tab === TabEnum.FAUCET ? (
+            <Faucet />
+          ) : tab === TabEnum.STAKER ? (
+            <Staker />
+          ) : null}
+        </div>
       </div>
     </div>
   );

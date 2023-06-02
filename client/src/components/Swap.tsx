@@ -56,7 +56,7 @@ export const Swap: FC = () => {
   };
 
   return (
-    <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+    <>
       <div className="bg-gray-200 rounded-3xl px-4 py-2 text-black w-full">
         <div className="flex justify-between">
           <input
@@ -99,6 +99,6 @@ export const Swap: FC = () => {
           Swap
         </button>
       </div>
-    </div>
+    </>
   );
 };

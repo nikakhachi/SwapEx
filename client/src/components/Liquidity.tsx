@@ -56,7 +56,7 @@ export const Liquidity: FC = () => {
   };
 
   return (
-    <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+    <>
       <p className="text-2xl">LP Tokens: {swapExContext?.lpTokenAmount}</p>
       {swapExContext?.lpTokenAmount !== 0 && (
         <div>
@@ -121,6 +121,6 @@ export const Liquidity: FC = () => {
           Add Liquidity
         </button>
       </div>
-    </div>
+    </>
   );
 };

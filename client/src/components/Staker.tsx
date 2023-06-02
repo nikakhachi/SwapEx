@@ -22,7 +22,7 @@ export const Staker: FC = () => {
   };
 
   return (
-    <div className="mt-12 flex flex-col" style={{ width: "500px" }}>
+    <>
       <p className="text-2xl">
         Total Rewards To Give - {stakerContext?.totalRewardsToGive} {stakerContext?.rewardsTokenSymbol}
       </p>
@@ -61,6 +61,6 @@ export const Staker: FC = () => {
           </div>
         </>
       ) : null}
-    </div>
+    </>
   );
 };
