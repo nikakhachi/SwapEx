@@ -43,13 +43,13 @@ export const FAUCET_ABI = [
       {
         indexed: true,
         internalType: "address",
-        name: "_user",
+        name: "user",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "_timestamp",
+        name: "timestamp",
         type: "uint256",
       },
     ],
