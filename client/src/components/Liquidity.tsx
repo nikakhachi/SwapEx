@@ -23,6 +23,12 @@ export const Liquidity: FC = () => {
   );
 
   useEffect(() => {
+    return () => {
+      swapExContext?.resetSecondTokenAmountForRatio();
+    };
+  }, []);
+
+  useEffect(() => {
     if (token0ToProvide && swapExContext?.token0Reserve && swapExContext?.token1Reserve && !debounceLocked) {
       setPrimaryToken(swapExContext?.token0Address as string);
       debounceFunc(swapExContext?.token0Address as string, token0ToProvide);
