@@ -21,14 +21,14 @@ export const Liquidity: FC = () => {
   );
 
   useEffect(() => {
-    if (token0ToProvide) {
+    if (token0ToProvide && swapExContext?.token0Reserve && swapExContext?.token1Reserve) {
       setPrimaryToken(swapExContext?.token0Address as string);
       debounceFunc(swapExContext?.token0Address as string, token0ToProvide);
     }
   }, [token0ToProvide]);
 
   useEffect(() => {
-    if (token1ToProvide) {
+    if (token1ToProvide && swapExContext?.token0Reserve && swapExContext?.token1Reserve) {
       setPrimaryToken(swapExContext?.token1Address as string);
       debounceFunc(swapExContext?.token1Address as string, token1ToProvide);
     }
