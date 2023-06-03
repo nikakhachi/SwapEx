@@ -8,10 +8,19 @@ import {
   INITIAL_LUMINA_SUPPLY,
   LUMINA_AMOUNT_PER_WITHDRAW,
 } from ".";
+import { Faucet, SwapEx, Token } from "../typechain-types";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("Swap", async function () {
-  it("Should swap correct amount of Celestia -> Lumina", async function () {
-    const { celestia, lumina, swapEx, otherAccount, celestiaFaucet } = await loadFixture(deploySwapExFixture);
+  let celestia: Token;
+  let lumina: Token;
+  let swapEx: SwapEx;
+  let celestiaFaucet: Faucet;
+  let luminaFaucet: Faucet;
+  let otherAccount: SignerWithAddress;
+
+  beforeEach(async () => {
+    ({ celestia, lumina, swapEx, celestiaFaucet, luminaFaucet, otherAccount } = await loadFixture(deploySwapExFixture));
 
     await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
     await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
@@ -20,7 +29,8 @@ describe("Swap", async function () {
       ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
       ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
     );
-
+  });
+  it("Should swap correct amount of Celestia -> Lumina", async function () {
     const reserveIn = await swapEx.reserve0();
     const reserveOut = await swapEx.reserve1();
     const amountIn = ethers.utils.parseUnits(String(CELESTIA_AMOUNT_PER_WITHDRAW));
@@ -46,16 +56,6 @@ describe("Swap", async function () {
     expect(await celestia.balanceOf(otherAccount.address)).to.eq(0);
   });
   it("Should swap correct amount of Lumina -> Celestia", async function () {
-    const { celestia, lumina, swapEx, otherAccount, luminaFaucet } = await loadFixture(deploySwapExFixture);
-
-    await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
-    await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
-
-    await swapEx.addLiquidity(
-      ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
-      ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
-    );
-
     const reserveIn = await swapEx.reserve1();
     const reserveOut = await swapEx.reserve0();
     const amountIn = ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW));
@@ -76,16 +76,6 @@ describe("Swap", async function () {
     expect(await lumina.balanceOf(otherAccount.address)).to.eq(0);
   });
   it("Should Emit Swap() Event", async function () {
-    const { celestia, lumina, swapEx, otherAccount, luminaFaucet } = await loadFixture(deploySwapExFixture);
-
-    await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
-    await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
-
-    await swapEx.addLiquidity(
-      ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
-      ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
-    );
-
     const amountIn = ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW));
 
     await luminaFaucet.connect(otherAccount).withdraw();
