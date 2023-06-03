@@ -118,8 +118,8 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
   };
 
   const value = {
-    token0WithdrawableAmountPerCall: Math.round(Number(ethers.formatUnits(token0WithdrawableAmountPerCall as BigNumberish))),
-    token1WithdrawableAmountPerCall: Math.round(Number(ethers.formatUnits(token1WithdrawableAmountPerCall as BigNumberish))),
+    token0WithdrawableAmountPerCall: Math.round(Number(ethers.formatUnits((token0WithdrawableAmountPerCall as BigNumberish) || 0))),
+    token1WithdrawableAmountPerCall: Math.round(Number(ethers.formatUnits((token1WithdrawableAmountPerCall as BigNumberish) || 0))),
     token0WithdrawAvailableTimestamp: new Date(Number(token0WithdrawalTime || 0) * 1000),
     token1WithdrawAvailableTimestamp: new Date(Number(token1WithdrawalTime || 0) * 1000),
     withdrawToken0,

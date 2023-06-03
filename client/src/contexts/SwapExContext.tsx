@@ -211,7 +211,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [onSwapSuccess, onRemoveLiquiditySuccess, onAddLiquiditySuccess, onRemoveAllLiquiditySuccess]);
 
   useEffect(() => {
-    if (tokenOneInAmountForLiquidity) {
+    if (tokenOneInAmountForLiquidity !== "0") {
       fetchTokenAmountForRatioTx();
     }
   }, [tokenOneInAmountForLiquidity]);
