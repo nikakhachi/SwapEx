@@ -30,11 +30,16 @@ describe("Swap", async function () {
 
     const expectedPriceFromContract = await swapEx.calculateAmountOut(celestia.address, amountIn);
 
-    await swapEx.connect(otherAccount).swap(celestia.address, amountIn);
+    const tx = await swapEx.connect(otherAccount).swap(celestia.address, amountIn);
+    const timestamp = (await ethers.provider.getBlock(tx.blockHash as string)).timestamp;
 
     const amountInWithFees = amountIn.mul(995).div(1000); // 0.5% fees
     // y△ = (y * x△) / (x + x△)
     const expectedPrice = reserveOut.mul(amountInWithFees).div(reserveIn.add(amountInWithFees));
+
+    await expect(tx)
+      .to.emit(swapEx, "Swap")
+      .withArgs(otherAccount.address, celestia.address, lumina.address, amountIn, expectedPrice, timestamp);
 
     expect(expectedPrice).to.eq(expectedPriceFromContract);
     expect(await lumina.balanceOf(otherAccount.address)).to.eq(expectedPrice);
@@ -60,11 +65,16 @@ describe("Swap", async function () {
 
     const expectedPriceFromContract = await swapEx.calculateAmountOut(lumina.address, amountIn);
 
-    await swapEx.connect(otherAccount).swap(lumina.address, amountIn);
+    const tx = await swapEx.connect(otherAccount).swap(lumina.address, amountIn);
+    const timestamp = (await ethers.provider.getBlock(tx.blockHash as string)).timestamp;
 
     const amountInWithFees = amountIn.mul(995).div(1000); // 0.5% fees
     // y△ = (y * x△) / (x + x△)
     const expectedPrice = reserveOut.mul(amountInWithFees).div(reserveIn.add(amountInWithFees));
+
+    await expect(tx)
+      .to.emit(swapEx, "Swap")
+      .withArgs(otherAccount.address, lumina.address, celestia.address, amountIn, expectedPrice, timestamp);
 
     expect(expectedPrice).to.eq(expectedPriceFromContract);
     expect(await celestia.balanceOf(otherAccount.address)).to.eq(expectedPrice);

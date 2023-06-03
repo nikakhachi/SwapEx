@@ -5,6 +5,15 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./Math.sol";
 
 contract SwapEx is ERC20 {
+    event Swap(
+        address indexed swapper,
+        address tokenIn,
+        address tokenOut,
+        uint amountIn,
+        uint amountOut,
+        uint timestamp
+    );
+
     ERC20 public token0;
     ERC20 public token1;
 
@@ -42,6 +51,14 @@ contract SwapEx is ERC20 {
         }
 
         tokenOut.transfer(msg.sender, amountOut);
+        emit Swap(
+            msg.sender,
+            address(tokenIn),
+            address(tokenOut),
+            _amountIn,
+            amountOut,
+            block.timestamp
+        );
         return amountOut;
     }
 
