@@ -1,5 +1,5 @@
-export const TOKEN0_FAUCET_ADDRESS = "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512";
-export const TOKEN1_FAUCET_ADDRESS = "0xdc64a140aa3e981100a9beca4e685f962f0cf6c9";
+export const TOKEN0_FAUCET_ADDRESS = "0xD72b0C6c35b7FECd916E5AaB86B2f3890Ca82A9a"; // verified
+export const TOKEN1_FAUCET_ADDRESS = "0x244eC49979DB3B40ed7236286E381e744DB1D252"; // verified
 export const FAUCET_ABI = [
   {
     inputs: [

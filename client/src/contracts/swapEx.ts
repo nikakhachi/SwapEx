@@ -1,4 +1,4 @@
-export const SWAPEX_ADDRESS = "0x0165878a594ca255338adfa4d48449f69242eb8f";
+export const SWAPEX_ADDRESS = "0x922A6831E904788cf4dB10134aFB4E910Df4E395";
 export const SWAPEX_ABI = [
   {
     inputs: [
