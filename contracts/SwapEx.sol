@@ -13,6 +13,18 @@ contract SwapEx is ERC20 {
         uint amountOut,
         uint timestamp
     );
+    event LiquidityAdded(
+        address indexed lp,
+        uint amount0,
+        uint amount1,
+        uint timestamp
+    );
+    event LiquidityRemoved(
+        address indexed lp,
+        uint amount0,
+        uint amount1,
+        uint timestamp
+    );
 
     ERC20 public token0;
     ERC20 public token1;
@@ -116,6 +128,8 @@ contract SwapEx is ERC20 {
         _mint(msg.sender, shares);
 
         _update(reserve0 + _amount0, reserve1 + _amount1);
+
+        emit LiquidityAdded(msg.sender, _amount0, _amount1, block.timestamp);
     }
 
     function removeLiquidity(uint _shares) public {
@@ -134,6 +148,13 @@ contract SwapEx is ERC20 {
 
         token0.transfer(msg.sender, token0Out);
         token1.transfer(msg.sender, token1Out);
+
+        emit LiquidityRemoved(
+            msg.sender,
+            token0Out,
+            token1Out,
+            block.timestamp
+        );
     }
 
     function removeAllLiquidity() external {

@@ -17,6 +17,25 @@ const sqrt = (value: BigNumber) => {
 };
 
 describe("Liquidity", async function () {
+  it("Should emit LiquidityAdded() and LiquidityRemoved() event", async function () {
+    const { celestia, lumina, swapEx, owner } = await loadFixture(deploySwapExFixture);
+
+    const CELESTIA_TO_PROVIDE = ethers.utils.parseUnits("10");
+    const LUMINA_TO_PROVIDE = ethers.utils.parseUnits("20");
+
+    await celestia.approve(swapEx.address, CELESTIA_TO_PROVIDE);
+    await lumina.approve(swapEx.address, LUMINA_TO_PROVIDE);
+
+    const tx1 = await swapEx.addLiquidity(CELESTIA_TO_PROVIDE, LUMINA_TO_PROVIDE);
+    const timestamp1 = (await ethers.provider.getBlock(tx1.blockHash as string)).timestamp;
+
+    await expect(tx1).to.emit(swapEx, "LiquidityAdded").withArgs(owner.address, CELESTIA_TO_PROVIDE, LUMINA_TO_PROVIDE, timestamp1);
+
+    const tx2 = await swapEx.removeAllLiquidity();
+    const timestamp2 = (await ethers.provider.getBlock(tx2.blockHash as string)).timestamp;
+
+    await expect(tx2).to.emit(swapEx, "LiquidityRemoved").withArgs(owner.address, CELESTIA_TO_PROVIDE, LUMINA_TO_PROVIDE, timestamp2);
+  });
   it("Add Initial Liquidity", async function () {
     const { celestia, lumina, swapEx, owner } = await loadFixture(deploySwapExFixture);
 
