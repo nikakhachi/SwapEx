@@ -10,7 +10,7 @@ export const LUMINA_AMOUNT_PER_WITHDRAW = 50;
 export const FAUCET_COOLDOWN = 10; // 10 seconds
 
 export const deploySwapExFixture = async () => {
-  const [owner, otherAccount] = await ethers.getSigners();
+  const [owner, otherAccount, account3, account4, account5] = await ethers.getSigners();
 
   const Celestia = await ethers.getContractFactory("Token");
   const celestia = await Celestia.deploy(
@@ -43,5 +43,5 @@ export const deploySwapExFixture = async () => {
   const SwapEx = await ethers.getContractFactory("SwapEx");
   const swapEx = await SwapEx.deploy(celestia.address, lumina.address);
 
-  return { celestia, lumina, swapEx, owner, otherAccount, celestiaFaucet, luminaFaucet };
+  return { celestia, lumina, swapEx, owner, otherAccount, celestiaFaucet, luminaFaucet, account3, account4, account5 };
 };
