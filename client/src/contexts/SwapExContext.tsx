@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useEffect, useState } from "react";
-import { useContractRead, useAccount, useContractWrite } from "wagmi";
+import { useContractRead, useAccount, useContractWrite, useContractEvent } from "wagmi";
 import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
 import { BigNumberish } from "ethers";
@@ -134,6 +134,42 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "calculateAmountOut",
     args: [tokenInForSwap, ethers.parseEther(String(tokenInAmountForSwap))],
     enabled: false,
+  });
+  useContractEvent({
+    address: SWAPEX_ADDRESS,
+    abi: SWAPEX_ABI,
+    eventName: "Swap",
+    listener(logs) {
+      if ((logs[0] as any).args.swapper.toUpperCase() !== address?.toUpperCase()) {
+        console.log("swap event");
+        refetchToken0Reserve();
+        refetchToken1Reserve();
+      }
+    },
+  });
+  useContractEvent({
+    address: SWAPEX_ADDRESS,
+    abi: SWAPEX_ABI,
+    eventName: "LiquidityAdded",
+    listener(logs) {
+      if ((logs[0] as any).args.lp.toUpperCase() !== address?.toUpperCase()) {
+        console.log("liquidity add event");
+        refetchToken0Reserve();
+        refetchToken1Reserve();
+      }
+    },
+  });
+  useContractEvent({
+    address: SWAPEX_ADDRESS,
+    abi: SWAPEX_ABI,
+    eventName: "LiquidityRemoved",
+    listener(logs) {
+      if ((logs[0] as any).args.lp.toUpperCase() !== address?.toUpperCase()) {
+        console.log("liquidity removed event");
+        refetchToken0Reserve();
+        refetchToken1Reserve();
+      }
+    },
   });
 
   useEffect(() => {
