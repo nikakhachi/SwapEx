@@ -30,7 +30,8 @@ export const Staker: FC = () => {
       <p className="text-2xl">
         {isLate ? "Ended" : "Ends"} At - {moment(stakerContext?.finishAt).format("DD/MM/YYYY, h:mm:ss a")}
       </p>
-      <p className="mt-2 mb-2 text-xl underline">Stake Ethereum in order to get rewards</p>
+      <p className="mt-2 text-xl underline">Stake Ethereum in order to get rewards</p>
+      <p className="mb-4 text-lg">Total Staked: {stakerContext?.totalStaked} ETH</p>
       <p className="text-xl mb-2">
         Rewards Earned: {stakerContext?.userRewards} {stakerContext?.rewardsTokenSymbol}
       </p>
@@ -41,9 +42,7 @@ export const Staker: FC = () => {
       )}
       {stakerContext?.stakedBalance ? (
         <>
-          <p className="text-xl mb-2">
-            Staked Amount: {stakerContext?.stakedBalance} {stakerContext?.rewardsTokenSymbol}
-          </p>
+          <p className="text-xl mb-2">Staked Amount: {stakerContext?.stakedBalance} ETH</p>
           <div>
             <Button text="Withdraw" className="mt-2 mb-4" onClick={withdraw} />
           </div>

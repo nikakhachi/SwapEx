@@ -13,6 +13,7 @@ type StakerContextType = {
   withdraw: () => void;
   getRewards: () => void;
   rewardsTokenSymbol: string;
+  totalStaked: number;
 };
 
 export const StakerContext = createContext<StakerContextType | null>(null);
@@ -68,6 +69,11 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: ERC20_ABI,
     functionName: "symbol",
   });
+  const { data: totalStaked, refetch: refetchTotalStaked } = useContractRead({
+    address: STAKER_ADDRESS,
+    abi: STAKER_ABI,
+    functionName: "totalStaked",
+  });
 
   useEffect(() => {
     if (address) {
@@ -91,6 +97,7 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (onStakeSuccess) {
       refetchStakedBalance();
+      refetchTotalStaked();
     }
   }, [onStakeSuccess]);
 
@@ -98,6 +105,7 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     if (onWithdrawSuccess) {
       refetchStakedBalance();
       refetchUserRewards();
+      refetchTotalStaked();
     }
   }, [onWithdrawSuccess]);
 
@@ -122,6 +130,7 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     withdraw,
     getRewards,
     rewardsTokenSymbol: rewardsTokenSymbol as string,
+    totalStaked: Number(ethers.formatUnits((totalStaked as BigNumberish) || 0)),
   };
 
   return <StakerContext.Provider value={value}>{children}</StakerContext.Provider>;
