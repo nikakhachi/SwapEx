@@ -4,6 +4,23 @@ import { ethers } from "hardhat";
 import { DEFAULT_STAKING_DURATION, TOTAL_STAKING_REWARDS, deployStakerFixture } from ".";
 
 describe("Staker", async function () {
+  it("Should emit Stake() and Withdraw() event", async function () {
+    const DURATION = 2;
+    const { staker, celestia, user1 } = await loadFixture(deployStakerFixture);
+    await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
+    await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DURATION);
+
+    const STAKE_AMOUNT = ethers.utils.parseEther("1");
+
+    const tx1 = await staker.connect(user1).stake({ value: STAKE_AMOUNT });
+    const timestamp1 = (await ethers.provider.getBlock(tx1.blockHash as string)).timestamp;
+
+    const tx2 = await staker.connect(user1).withdraw();
+    const timestamp2 = (await ethers.provider.getBlock(tx2.blockHash as string)).timestamp;
+
+    await expect(tx1).to.emit(staker, "Stake").withArgs(user1.address, STAKE_AMOUNT, timestamp1);
+    await expect(tx2).to.emit(staker, "Withdraw").withArgs(user1.address, STAKE_AMOUNT, timestamp2);
+  });
   it("Should Set Rewards", async function () {
     const { staker, celestia } = await loadFixture(deployStakerFixture);
     await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));

@@ -8,6 +8,9 @@ import "./Math.sol";
 import "hardhat/console.sol";
 
 contract Staker is Ownable {
+    event Stake(address indexed staker, uint amount, uint timestamp);
+    event Withdraw(address indexed staker, uint amount, uint timestamp);
+
     IERC20 public immutable rewardsToken;
 
     constructor(address _rewardsToken) {
@@ -54,6 +57,7 @@ contract Staker is Ownable {
         totalStaked += msg.value;
         stakedBalanceOf[msg.sender] = msg.value;
         lastUpdateTime = block.timestamp;
+        emit Stake(msg.sender, msg.value, block.timestamp);
     }
 
     function withdraw() external {
@@ -69,6 +73,7 @@ contract Staker is Ownable {
         totalStaked -= stakedAmount;
         lastUpdateTime = _lastApplicableTime();
         userRewards[msg.sender] += rewards;
+        emit Withdraw(msg.sender, stakedAmount, block.timestamp);
     }
 
     function _lastApplicableTime() private view returns (uint) {
