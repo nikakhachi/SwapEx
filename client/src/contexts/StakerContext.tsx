@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useEffect } from "react";
-import { useContractRead, useAccount, useContractWrite } from "wagmi";
+import { useContractRead, useAccount, useContractWrite, useContractEvent } from "wagmi";
 import { ethers, BigNumberish } from "ethers";
 import { STAKER_ABI, STAKER_ADDRESS } from "../contracts/Staker";
 import { ERC20_ABI } from "../contracts/ERC20";
@@ -73,6 +73,26 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     address: STAKER_ADDRESS,
     abi: STAKER_ABI,
     functionName: "totalStaked",
+  });
+  useContractEvent({
+    address: STAKER_ADDRESS,
+    abi: STAKER_ABI,
+    eventName: "Stake",
+    listener(logs) {
+      if ((logs[0] as any).args.staker.toUpperCase() !== address?.toUpperCase()) {
+        refetchTotalStaked();
+      }
+    },
+  });
+  useContractEvent({
+    address: STAKER_ADDRESS,
+    abi: STAKER_ABI,
+    eventName: "Withdraw",
+    listener(logs) {
+      if ((logs[0] as any).args.staker.toUpperCase() !== address?.toUpperCase()) {
+        refetchTotalStaked();
+      }
+    },
   });
 
   useEffect(() => {
