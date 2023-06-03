@@ -9,11 +9,11 @@ error InvalidAddress();
 error TooManyRequests();
 
 contract Faucet {
+    event Withdraw(address indexed user, uint timestamp);
+
     IERC20 public token;
     uint public withdrawableAmount;
     uint public cooldown;
-
-    event Withdraw(address indexed _user, uint _timestamp);
 
     mapping(address => uint) public withdrawalTimes;
 

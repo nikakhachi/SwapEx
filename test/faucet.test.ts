@@ -4,6 +4,14 @@ import { ethers } from "hardhat";
 import { deploySwapExFixture, CELESTIA_AMOUNT_PER_WITHDRAW, LUMINA_AMOUNT_PER_WITHDRAW, FAUCET_COOLDOWN, CELESTIA_FAUCET_AMOUNT } from ".";
 
 describe("Faucet", async function () {
+  it("Should emit Withdraw() event", async function () {
+    const { celestiaFaucet, otherAccount } = await loadFixture(deploySwapExFixture);
+
+    const tx = await celestiaFaucet.connect(otherAccount).withdraw();
+    const timestamp = (await ethers.provider.getBlock(tx.blockHash as string)).timestamp;
+
+    await expect(tx).to.emit(celestiaFaucet, "Withdraw").withArgs(otherAccount.address, timestamp);
+  });
   it("Should Withdraw", async function () {
     const { celestiaFaucet, luminaFaucet, celestia, lumina, otherAccount } = await loadFixture(deploySwapExFixture);
 
