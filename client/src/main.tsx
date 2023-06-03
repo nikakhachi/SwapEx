@@ -3,26 +3,19 @@ import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, mainnet, createConfig, WagmiConfig } from "wagmi";
-import { goerli, localhost } from "wagmi/chains";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import { goerli } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { SwapExProvider } from "./contexts/SwapExContext.tsx";
 import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
 import { FaucetProvider } from "./contexts/FaucetContext.tsx";
 import { StakerProvider } from "./contexts/StakerContext.tsx";
 
-const { chains, publicClient } = configureChains(
-  [
-    // mainnet,
-    //, goerli,
-    localhost,
-  ],
-  [publicProvider()]
-);
+const { chains, publicClient } = configureChains([goerli], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
   appName: "SwapEx",
-  projectId: "SWAPEX_0523",
+  projectId: "1a157ddc02ca122e1fbf6b52f456f122",
   chains,
 });
 
