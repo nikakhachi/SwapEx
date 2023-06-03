@@ -6,8 +6,8 @@ import { Button } from "./Button";
 export const Liquidity: FC = () => {
   const swapExContext = useContext(SwapExContext);
 
-  const [token0ToProvide, setToken0ToProvide] = useState(0);
-  const [token1ToProvide, setToken1ToProvide] = useState(0);
+  const [token0ToProvide, setToken0ToProvide] = useState("0");
+  const [token1ToProvide, setToken1ToProvide] = useState("0");
 
   const [primaryToken, setPrimaryToken] = useState(swapExContext?.token0Address as string);
 
@@ -16,7 +16,7 @@ export const Liquidity: FC = () => {
   const [debounceLocked, setDebounceLocked] = useState(false);
 
   const debounceFunc = useCallback(
-    debounce((tokenOne: string, tokenOneAmount: number) => {
+    debounce((tokenOne: string, tokenOneAmount: string) => {
       swapExContext?.fetchSecondTokenAmountForRatio(tokenOne, tokenOneAmount);
     }, 1000),
     []
@@ -96,7 +96,7 @@ export const Liquidity: FC = () => {
           value={token0ToProvide}
           onChange={(e) => {
             setDebounceLocked(false);
-            setToken0ToProvide(Number(e.target.value));
+            setToken0ToProvide(e.target.value);
           }}
           type="number"
         />
@@ -109,7 +109,7 @@ export const Liquidity: FC = () => {
           value={token1ToProvide}
           onChange={(e) => {
             setDebounceLocked(false);
-            setToken1ToProvide(Number(e.target.value));
+            setToken1ToProvide(e.target.value);
           }}
           type="number"
         />

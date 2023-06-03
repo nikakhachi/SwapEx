@@ -14,15 +14,15 @@ type SwapExContextType = {
   token1Symbol: string;
   lpTokenAmount: number;
   swap: (tokenIn: string, amountIn: number) => void;
-  approve: (tokenAddress: string, amount: number) => void;
+  approve: (tokenAddress: string, amount: string) => void;
   removeLiquidity: (shares: number) => void;
   removeAllLiquidity: () => void;
-  addLiquidity: (token0Amount: number, token1Amount: number) => void;
+  addLiquidity: (token0Amount: string, token1Amount: string) => void;
   balanceOfToken0: number;
   balanceOfToken1: number;
   fetchBalances: () => void;
-  secondTokenAmountForRatio: number;
-  fetchSecondTokenAmountForRatio: (tokenOne: string, tokenOneAmount: number) => void;
+  secondTokenAmountForRatio: string;
+  fetchSecondTokenAmountForRatio: (tokenOne: string, tokenOneAmount: string) => void;
   tokenOutputForSwap: number;
   fetchTokenOutputForSwap: (tokenIn: string, tokenInAmount: number) => void;
   resetSecondTokenAmountForRatio: () => void;
@@ -34,12 +34,12 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const { address } = useAccount();
 
   const [tokenOneInForLiquidity, setTokenOneInForLiqudiity] = useState("");
-  const [tokenOneInAmountForLiquidity, setTokenOneInAmountForLiqudiity] = useState(0);
+  const [tokenOneInAmountForLiquidity, setTokenOneInAmountForLiqudiity] = useState("0");
 
   const [tokenInForSwap, setTokenInForSwap] = useState("");
   const [tokenInAmountForSwap, setTokenInAmountForSwap] = useState(0);
 
-  const [secondTokenAmountForRatio, setSecondTokenAmountForRatio] = useState(0);
+  const [secondTokenAmountForRatio, setSecondTokenAmountForRatio] = useState("0");
 
   const { data: token0Address } = useContractRead({
     address: SWAPEX_ADDRESS,
@@ -224,7 +224,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     if (tokenAmountForRatio) {
-      setSecondTokenAmountForRatio(Number(ethers.formatUnits((tokenAmountForRatio as BigNumberish) || 0)));
+      setSecondTokenAmountForRatio(ethers.formatUnits((tokenAmountForRatio as BigNumberish) || 0));
     }
   }, [tokenAmountForRatio]);
 
@@ -232,11 +232,11 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     swapTokens({ args: [tokenIn, ethers.parseUnits(String(amountIn))] });
   };
 
-  const approve = (tokenAddress: string, amount: number) => {
+  const approve = (tokenAddress: string, amount: string) => {
     if (tokenAddress === token0Address) {
-      approveToken0({ args: [SWAPEX_ADDRESS, ethers.parseUnits(String(amount))] });
+      approveToken0({ args: [SWAPEX_ADDRESS, ethers.parseUnits(amount)] });
     } else if (tokenAddress === token1Address) {
-      approveToken1({ args: [SWAPEX_ADDRESS, ethers.parseUnits(String(amount))] });
+      approveToken1({ args: [SWAPEX_ADDRESS, ethers.parseUnits(amount)] });
     }
   };
 
@@ -248,8 +248,8 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     removeAllLiquidityTx();
   };
 
-  const addLiquidity = (token0Amount: number, token1Amount: number) => {
-    addLiquidityTx({ args: [ethers.parseUnits(String(token0Amount)), ethers.parseUnits(String(token1Amount))] });
+  const addLiquidity = (token0Amount: string, token1Amount: string) => {
+    addLiquidityTx({ args: [ethers.parseUnits(token0Amount), ethers.parseUnits(token1Amount)] });
   };
 
   const fetchBalances = () => {
@@ -257,7 +257,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     fetchBalanceOfToken1();
   };
 
-  const fetchSecondTokenAmountForRatio = (tokenOne: string, tokenOneIn: number) => {
+  const fetchSecondTokenAmountForRatio = (tokenOne: string, tokenOneIn: string) => {
     setTokenOneInForLiqudiity(tokenOne);
     setTokenOneInAmountForLiqudiity(tokenOneIn);
   };
@@ -287,7 +287,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     fetchSecondTokenAmountForRatio,
     fetchTokenOutputForSwap,
     tokenOutputForSwap: Number(ethers.formatUnits((tokenOutputForSwap as BigNumberish) || 0)),
-    resetSecondTokenAmountForRatio: () => setSecondTokenAmountForRatio(0),
+    resetSecondTokenAmountForRatio: () => setSecondTokenAmountForRatio("0"),
   };
 
   return <SwapExContext.Provider value={value}>{children}</SwapExContext.Provider>;
