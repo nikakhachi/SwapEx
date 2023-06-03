@@ -72,7 +72,7 @@ export const Swap: FC = () => {
         };
 
   const approve = () => {
-    swapExContext.approve(tokenData.toSellAddress, amountToSell);
+    swapExContext.approve(tokenData.toSellAddress, String(amountToSell));
   };
 
   const swap = () => {
