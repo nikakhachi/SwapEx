@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useEffect } from "react";
-import { useContractRead, useAccount, useContractWrite } from "wagmi";
+import { useContractRead, useAccount, useContractWrite, useContractEvent } from "wagmi";
 import { TOKEN0_FAUCET_ADDRESS, FAUCET_ABI, TOKEN1_FAUCET_ADDRESS } from "../contracts/Faucet";
 import { ethers, BigNumberish } from "ethers";
 import { ERC20_ABI } from "../contracts/ERC20";
@@ -78,6 +78,26 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "balanceOf",
     enabled: false,
     args: [TOKEN1_FAUCET_ADDRESS],
+  });
+  useContractEvent({
+    address: TOKEN0_FAUCET_ADDRESS,
+    abi: FAUCET_ABI,
+    eventName: "Withdraw",
+    listener(logs) {
+      if ((logs[0] as any).args.user.toUpperCase() !== address?.toUpperCase()) {
+        fetchBalanceOfToken0();
+      }
+    },
+  });
+  useContractEvent({
+    address: TOKEN1_FAUCET_ADDRESS,
+    abi: FAUCET_ABI,
+    eventName: "Withdraw",
+    listener(logs) {
+      if ((logs[0] as any).args.user.toUpperCase() !== address?.toUpperCase()) {
+        fetchBalanceOfToken1();
+      }
+    },
   });
 
   useEffect(() => {
