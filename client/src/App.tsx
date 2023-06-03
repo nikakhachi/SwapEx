@@ -7,6 +7,7 @@ import { Faucet } from "./components/Faucet";
 import { Staker } from "./components/Staker";
 import { Tabs, Tab } from "@mui/material";
 import { useState } from "react";
+import { AiFillGithub } from "react-icons/ai";
 
 enum TabEnum {
   SWAP,
@@ -24,7 +25,18 @@ function App() {
 
   return (
     <div>
-      <div className="w-full flex justify-center mt-4 mb-8">
+      <div className="w-full flex justify-between mt-4 mb-8 pr-2">
+        <ul className="flex gap-2 text-xl items-center pl-2">
+          <li>
+            <a href="https://github.com/nikakhachi/SwapEx" className="flex items-center gap-1" target="_blank" rel="noreferrer">
+              <span className="text-2xl">
+                <AiFillGithub />
+              </span>
+              Github
+            </a>
+          </li>
+          <li>Etherscan</li>
+        </ul>
         <ConnectButton />
       </div>
       <Tabs value={tab} onChange={handleChange} centered>
