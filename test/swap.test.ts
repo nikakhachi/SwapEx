@@ -27,12 +27,16 @@ describe("Swap", async function () {
 
     await celestiaFaucet.connect(otherAccount).withdraw();
     await celestia.connect(otherAccount).approve(swapEx.address, amountIn);
+
+    const expectedPriceFromContract = await swapEx.calculateAmountOut(celestia.address, amountIn);
+
     await swapEx.connect(otherAccount).swap(celestia.address, amountIn);
 
     const amountInWithFees = amountIn.mul(995).div(1000); // 0.5% fees
     // y△ = (y * x△) / (x + x△)
     const expectedPrice = reserveOut.mul(amountInWithFees).div(reserveIn.add(amountInWithFees));
 
+    expect(expectedPrice).to.eq(expectedPriceFromContract);
     expect(await lumina.balanceOf(otherAccount.address)).to.eq(expectedPrice);
     expect(await celestia.balanceOf(otherAccount.address)).to.eq(0);
   });
@@ -53,12 +57,16 @@ describe("Swap", async function () {
 
     await luminaFaucet.connect(otherAccount).withdraw();
     await lumina.connect(otherAccount).approve(swapEx.address, amountIn);
+
+    const expectedPriceFromContract = await swapEx.calculateAmountOut(lumina.address, amountIn);
+
     await swapEx.connect(otherAccount).swap(lumina.address, amountIn);
 
     const amountInWithFees = amountIn.mul(995).div(1000); // 0.5% fees
     // y△ = (y * x△) / (x + x△)
     const expectedPrice = reserveOut.mul(amountInWithFees).div(reserveIn.add(amountInWithFees));
 
+    expect(expectedPrice).to.eq(expectedPriceFromContract);
     expect(await celestia.balanceOf(otherAccount.address)).to.eq(expectedPrice);
     expect(await lumina.balanceOf(otherAccount.address)).to.eq(0);
   });
