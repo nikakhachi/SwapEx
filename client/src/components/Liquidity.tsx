@@ -13,6 +13,8 @@ export const Liquidity: FC = () => {
 
   const [sharesToRemove, setSharesToRemove] = useState(0);
 
+  const [debounceLocked, setDebounceLocked] = useState(false);
+
   const debounceFunc = useCallback(
     debounce((tokenOne: string, tokenOneAmount: number) => {
       swapExContext?.fetchSecondTokenAmountForRatio(tokenOne, tokenOneAmount);
@@ -21,14 +23,14 @@ export const Liquidity: FC = () => {
   );
 
   useEffect(() => {
-    if (token0ToProvide && swapExContext?.token0Reserve && swapExContext?.token1Reserve) {
+    if (token0ToProvide && swapExContext?.token0Reserve && swapExContext?.token1Reserve && !debounceLocked) {
       setPrimaryToken(swapExContext?.token0Address as string);
       debounceFunc(swapExContext?.token0Address as string, token0ToProvide);
     }
   }, [token0ToProvide]);
 
   useEffect(() => {
-    if (token1ToProvide && swapExContext?.token0Reserve && swapExContext?.token1Reserve) {
+    if (token1ToProvide && swapExContext?.token0Reserve && swapExContext?.token1Reserve && !debounceLocked) {
       setPrimaryToken(swapExContext?.token1Address as string);
       debounceFunc(swapExContext?.token1Address as string, token1ToProvide);
     }
@@ -36,6 +38,7 @@ export const Liquidity: FC = () => {
 
   useEffect(() => {
     if (swapExContext?.secondTokenAmountForRatio) {
+      setDebounceLocked(true);
       if (primaryToken === swapExContext?.token0Address) {
         setToken1ToProvide(swapExContext?.secondTokenAmountForRatio);
       } else if (primaryToken === swapExContext?.token1Address) {
@@ -85,7 +88,10 @@ export const Liquidity: FC = () => {
         <input
           className="text-xl rounded-xl px-2"
           value={token0ToProvide}
-          onChange={(e) => setToken0ToProvide(Number(e.target.value))}
+          onChange={(e) => {
+            setDebounceLocked(false);
+            setToken0ToProvide(Number(e.target.value));
+          }}
           type="number"
         />
       </div>
@@ -95,7 +101,10 @@ export const Liquidity: FC = () => {
         <input
           className="text-xl rounded-xl px-2"
           value={token1ToProvide}
-          onChange={(e) => setToken1ToProvide(Number(e.target.value))}
+          onChange={(e) => {
+            setDebounceLocked(false);
+            setToken1ToProvide(Number(e.target.value));
+          }}
           type="number"
         />
       </div>
