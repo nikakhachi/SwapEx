@@ -8,23 +8,29 @@ import {
   CELESTIA_AMOUNT_PER_WITHDRAW,
   LUMINA_AMOUNT_PER_WITHDRAW,
   FAUCET_COOLDOWN,
+  deployStakerFixture,
 } from ".";
 
 describe("Deployment", function () {
-  it("Should work", async function () {
+  it("SwapEx Fixture Should work", async function () {
     await loadFixture(deploySwapExFixture);
   });
-  it("Should set right token addresses", async function () {
-    const { celestia, lumina, swapEx } = await loadFixture(deploySwapExFixture);
-
-    expect(await swapEx.token0()).to.eq(celestia.address);
-    expect(await swapEx.token1()).to.eq(lumina.address);
+  it("Staker Fixture Should work", async function () {
+    await loadFixture(deployStakerFixture);
   });
-  it("Should set right token reservers", async function () {
-    const { swapEx } = await loadFixture(deploySwapExFixture);
+  describe("SwapEx", async function () {
+    it("Should set right token addresses", async function () {
+      const { celestia, lumina, swapEx } = await loadFixture(deploySwapExFixture);
 
-    expect(await swapEx.reserve0()).to.eq(0);
-    expect(await swapEx.reserve1()).to.eq(0);
+      expect(await swapEx.token0()).to.eq(celestia.address);
+      expect(await swapEx.token1()).to.eq(lumina.address);
+    });
+    it("Should set right token reservers", async function () {
+      const { swapEx } = await loadFixture(deploySwapExFixture);
+
+      expect(await swapEx.reserve0()).to.eq(0);
+      expect(await swapEx.reserve1()).to.eq(0);
+    });
   });
   describe("Faucets", async function () {
     it("Should set balances", async function () {
@@ -43,6 +49,18 @@ describe("Deployment", function () {
       const { celestiaFaucet, luminaFaucet } = await loadFixture(deploySwapExFixture);
       expect(await celestiaFaucet.cooldown()).to.eq(FAUCET_COOLDOWN);
       expect(await luminaFaucet.cooldown()).to.eq(FAUCET_COOLDOWN);
+    });
+  });
+  describe("Staker", async function () {
+    it("Should set right rewards token", async function () {
+      const { staker, celestia } = await loadFixture(deployStakerFixture);
+
+      expect(await staker.rewardsToken()).to.eq(celestia.address);
+    });
+    it("Should set right owner", async function () {
+      const { staker, owner } = await loadFixture(deployStakerFixture);
+
+      expect(await staker.owner()).to.eq(owner.address);
     });
   });
 });

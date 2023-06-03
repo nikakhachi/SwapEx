@@ -45,3 +45,18 @@ export const deploySwapExFixture = async () => {
 
   return { celestia, lumina, swapEx, owner, otherAccount, celestiaFaucet, luminaFaucet, account3, account4, account5 };
 };
+
+export const TOTAL_STAKING_REWARDS = 1000;
+export const DEFAULT_STAKING_DURATION = 10;
+
+export const deployStakerFixture = async () => {
+  const [owner, user1, user2, user3] = await ethers.getSigners();
+
+  const Celestia = await ethers.getContractFactory("Token");
+  const celestia = await Celestia.deploy("Celestia", "CEL", ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
+
+  const Staker = await ethers.getContractFactory("Staker");
+  const staker = await Staker.deploy(celestia.address);
+
+  return { staker, celestia, owner, user1, user2, user3 };
+};
