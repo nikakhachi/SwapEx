@@ -43,6 +43,7 @@ contract Staker is Ownable {
     function stake() external payable {
         require(stakedBalanceOf[msg.sender] == 0);
         require(msg.value > 0);
+        require(block.timestamp < finishAt);
         if (totalStaked != 0) {
             rewardPerToken +=
                 ((rewardRate * (_lastApplicableTime() - lastUpdateTime)) *
@@ -75,6 +76,7 @@ contract Staker is Ownable {
     }
 
     function getRewards() external {
+        require(userRewards[msg.sender] != 0);
         uint rewards = userRewards[msg.sender];
         userRewards[msg.sender] = 0;
         rewardsToken.transfer(msg.sender, rewards);
