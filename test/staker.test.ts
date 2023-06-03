@@ -21,6 +21,37 @@ describe("Staker", async function () {
     await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS - 1)));
     await expect(staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DEFAULT_STAKING_DURATION)).reverted;
   });
+  it("Should Not Stake with 0 ETH", async function () {
+    const { staker, user1 } = await loadFixture(deployStakerFixture);
+    await expect(staker.connect(user1).stake()).reverted;
+  });
+  it("Should Not Stake After Reward Giving is Finished", async function () {
+    const { staker, user1, celestia } = await loadFixture(deployStakerFixture);
+    const DURATION = 2;
+    await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
+    await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DURATION);
+    await new Promise((res) => setTimeout(res, DURATION * 1000));
+    await expect(staker.connect(user1).stake({ value: ethers.utils.parseEther("1") })).reverted;
+  });
+  it("Should Not Stake if Already Staked", async function () {
+    const { staker, user1, celestia } = await loadFixture(deployStakerFixture);
+    await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
+    await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DEFAULT_STAKING_DURATION);
+    await staker.connect(user1).stake({ value: ethers.utils.parseEther("1") });
+    await expect(staker.connect(user1).stake({ value: ethers.utils.parseEther("1") })).reverted;
+  });
+  it("Should Not Withdraw if Staked Amount is 0", async function () {
+    const { staker, user1, celestia } = await loadFixture(deployStakerFixture);
+    await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
+    await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DEFAULT_STAKING_DURATION);
+    await expect(staker.connect(user1).withdraw()).reverted;
+  });
+  it("Should Not Get Rewards if Rewards is 0", async function () {
+    const { staker, user1, celestia } = await loadFixture(deployStakerFixture);
+    await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
+    await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DEFAULT_STAKING_DURATION);
+    await expect(staker.connect(user1).getRewards()).reverted;
+  });
   it("Staking and Withdrawing (1 staker only)", async function () {
     const DURATION = 2;
     const { staker, celestia, user1 } = await loadFixture(deployStakerFixture);
@@ -41,28 +72,32 @@ describe("Staker", async function () {
       (TOTAL_STAKING_REWARDS / DURATION) * stakedDurationInRewardsInterval
     );
   });
-  it("Should Not Stake with 0 ETH", async function () {
-    const { staker, user1 } = await loadFixture(deployStakerFixture);
-    await expect(staker.connect(user1).stake()).reverted;
-  });
-  it("Should Not Stake After Reward Giving is Finished", async function () {
-    const { staker, user1, celestia } = await loadFixture(deployStakerFixture);
-    const DURATION = 2;
+  it("Staking and Withdrawing (multiple stakers)", async function () {
+    const DURATION = 5;
+    const { staker, celestia, user1, user2, user3 } = await loadFixture(deployStakerFixture);
     await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
     await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DURATION);
+
+    await staker.connect(user1).stake({ value: ethers.utils.parseEther("1") });
+    await staker.connect(user2).stake({ value: ethers.utils.parseEther("10") });
+    await staker.connect(user3).stake({ value: ethers.utils.parseEther("10") });
+
     await new Promise((res) => setTimeout(res, DURATION * 1000));
-    await expect(staker.connect(user1).stake({ value: ethers.utils.parseEther("1") })).reverted;
-  });
-  it("Should Not Withdraw if Staked Amount is 0", async function () {
-    const { staker, user1, celestia } = await loadFixture(deployStakerFixture);
-    await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
-    await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DEFAULT_STAKING_DURATION);
-    await expect(staker.connect(user1).withdraw()).reverted;
-  });
-  it("Should Not Get Rewards if Rewards is 0", async function () {
-    const { staker, user1, celestia } = await loadFixture(deployStakerFixture);
-    await celestia.transfer(staker.address, ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)));
-    await staker.setRewards(ethers.utils.parseUnits(String(TOTAL_STAKING_REWARDS)), DEFAULT_STAKING_DURATION);
-    await expect(staker.connect(user1).getRewards()).reverted;
+
+    await staker.connect(user1).withdraw();
+    await staker.connect(user2).withdraw();
+    await staker.connect(user3).withdraw();
+
+    await staker.connect(user1).getRewards();
+    await staker.connect(user2).getRewards();
+    await staker.connect(user3).getRewards();
+
+    const user1Balance = Number(ethers.utils.formatEther(await celestia.balanceOf(user1.address)));
+    const user2Balance = Number(ethers.utils.formatEther(await celestia.balanceOf(user2.address)));
+    const user3Balance = Number(ethers.utils.formatEther(await celestia.balanceOf(user3.address)));
+
+    expect(user1Balance).greaterThan(user3Balance);
+    expect(user2Balance).greaterThan(user1Balance);
+    expect(user2Balance).greaterThan(user3Balance);
   });
 });
