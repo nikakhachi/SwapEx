@@ -65,19 +65,39 @@ describe("Swap", async function () {
 
     const expectedPriceFromContract = await swapEx.calculateAmountOut(lumina.address, amountIn);
 
-    const tx = await swapEx.connect(otherAccount).swap(lumina.address, amountIn);
-    const timestamp = (await ethers.provider.getBlock(tx.blockHash as string)).timestamp;
+    await swapEx.connect(otherAccount).swap(lumina.address, amountIn);
 
     const amountInWithFees = amountIn.mul(995).div(1000); // 0.5% fees
     // y△ = (y * x△) / (x + x△)
     const expectedPrice = reserveOut.mul(amountInWithFees).div(reserveIn.add(amountInWithFees));
 
-    await expect(tx)
-      .to.emit(swapEx, "Swap")
-      .withArgs(otherAccount.address, lumina.address, celestia.address, amountIn, expectedPrice, timestamp);
-
     expect(expectedPrice).to.eq(expectedPriceFromContract);
     expect(await celestia.balanceOf(otherAccount.address)).to.eq(expectedPrice);
     expect(await lumina.balanceOf(otherAccount.address)).to.eq(0);
+  });
+  it("Should Emit Swap() Event", async function () {
+    const { celestia, lumina, swapEx, otherAccount, luminaFaucet } = await loadFixture(deploySwapExFixture);
+
+    await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)));
+    await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY)));
+
+    await swapEx.addLiquidity(
+      ethers.utils.parseUnits(String(INITIAL_CELESTIA_SUPPLY)),
+      ethers.utils.parseUnits(String(INITIAL_LUMINA_SUPPLY))
+    );
+
+    const amountIn = ethers.utils.parseUnits(String(LUMINA_AMOUNT_PER_WITHDRAW));
+
+    await luminaFaucet.connect(otherAccount).withdraw();
+    await lumina.connect(otherAccount).approve(swapEx.address, amountIn);
+
+    const expectedPriceFromContract = await swapEx.calculateAmountOut(lumina.address, amountIn);
+
+    const tx = await swapEx.connect(otherAccount).swap(lumina.address, amountIn);
+    const timestamp = (await ethers.provider.getBlock(tx.blockHash as string)).timestamp;
+
+    await expect(tx)
+      .to.emit(swapEx, "Swap")
+      .withArgs(otherAccount.address, lumina.address, celestia.address, amountIn, expectedPriceFromContract, timestamp);
   });
 });
