@@ -14,17 +14,12 @@ error TooManyRequests();
 contract Faucet {
     event Withdraw(address indexed user, uint timestamp);
 
-    /// @dev Reference to the ERC20 token contract.
-    IERC20 public token;
+    IERC20 public token; /// @dev Reference to the ERC20 token contract.
 
-    /// @dev Amount of tokens that can be withdrawn per request.
-    uint public withdrawableAmount;
+    uint public withdrawableAmount; /// @dev Amount of tokens that can be withdrawn per request.
+    uint public cooldown; /// @dev Cooldown period between two consecutive withdrawals for a user.
 
-    /// @dev Cooldown period between two consecutive withdrawals for a user.
-    uint public cooldown;
-
-    /// @dev Mapping to track the last withdrawal timestamp for each user.
-    mapping(address => uint) public withdrawalTimes;
+    mapping(address => uint) public withdrawalTimes; /// @dev Mapping to track the last withdrawal timestamp for each user.
 
     /// @dev Contract constructor.
     /// @param _token The address of the ERC20 token contract.
@@ -49,13 +44,8 @@ contract Faucet {
         if (withdrawalTimes[msg.sender] > block.timestamp)
             revert TooManyRequests();
 
-        // Set the withdrawal timestamp for the user
-        withdrawalTimes[msg.sender] = block.timestamp + cooldown;
-
-        // Transfer tokens from the faucet to the user
-        token.transfer(msg.sender, withdrawableAmount);
-
-        // Emit the Withdraw event
-        emit Withdraw(msg.sender, block.timestamp);
+        withdrawalTimes[msg.sender] = block.timestamp + cooldown; // Set the withdrawal timestamp for the user
+        token.transfer(msg.sender, withdrawableAmount); // Transfer tokens from the faucet to the user
+        emit Withdraw(msg.sender, block.timestamp); // Emit the Withdraw event
     }
 }
