@@ -19,7 +19,7 @@ enum TabEnum {
 function App() {
   const [tab, setTab] = useState(TabEnum.SWAP);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: TabEnum) => {
+  const handleChange = (_: React.SyntheticEvent, newValue: TabEnum) => {
     setTab(newValue);
   };
 
