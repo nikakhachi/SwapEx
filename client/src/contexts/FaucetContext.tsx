@@ -66,47 +66,25 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: FAUCET_ABI,
     functionName: "withdraw",
   });
-  const { data: balanceOfToken0, refetch: fetchBalanceOfToken0 } = useContractRead({
+  const { data: balanceOfToken0 } = useContractRead({
     address: token0Address as `0x${string}`,
     abi: ERC20_ABI,
     functionName: "balanceOf",
-    enabled: false,
     args: [TOKEN0_FAUCET_ADDRESS],
+    watch: true,
   });
-  const { data: balanceOfToken1, refetch: fetchBalanceOfToken1 } = useContractRead({
+  const { data: balanceOfToken1 } = useContractRead({
     address: token1Address as `0x${string}`,
     abi: ERC20_ABI,
     functionName: "balanceOf",
-    enabled: false,
     args: [TOKEN1_FAUCET_ADDRESS],
-  });
-  useContractEvent({
-    address: TOKEN0_FAUCET_ADDRESS,
-    abi: FAUCET_ABI,
-    eventName: "Withdraw",
-    listener(logs) {
-      if ((logs[0] as any).args.user.toUpperCase() !== address?.toUpperCase()) {
-        fetchBalanceOfToken0();
-      }
-    },
-  });
-  useContractEvent({
-    address: TOKEN1_FAUCET_ADDRESS,
-    abi: FAUCET_ABI,
-    eventName: "Withdraw",
-    listener(logs) {
-      if ((logs[0] as any).args.user.toUpperCase() !== address?.toUpperCase()) {
-        fetchBalanceOfToken1();
-      }
-    },
+    watch: true,
   });
 
   useEffect(() => {
     if (address || onToken0WithdrawalSuccess || onToken1WithdrawalSuccess) {
       fetchToken0WithdrawalTime();
       fetchToken1WithdrawalTime();
-      fetchBalanceOfToken0();
-      fetchBalanceOfToken1();
     }
   }, [address, onToken0WithdrawalSuccess, onToken1WithdrawalSuccess]);
 
