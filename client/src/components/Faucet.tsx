@@ -3,6 +3,7 @@ import { SwapExContext } from "../contexts/SwapExContext";
 import { FaucetContext } from "../contexts/FaucetContext";
 import moment from "moment";
 import { Button } from "./Button";
+import { CircularProgress } from "@mui/material";
 
 export const Faucet: FC = () => {
   const swapExContext = useContext(SwapExContext);
@@ -30,10 +31,16 @@ export const Faucet: FC = () => {
         </p>
         <div className="mt-2">
           <Button
-            disabled={!token0WithdrawAvailable}
-            text={`Send Me ${swapExContext?.token0Symbol}`}
+            disabled={!token0WithdrawAvailable || faucetContext?.withdrawToken0Loading}
+            text={
+              faucetContext?.withdrawToken0Loading ? (
+                <CircularProgress size="1rem" color="inherit" />
+              ) : (
+                `Send Me ${swapExContext?.token0Symbol}`
+              )
+            }
             onClick={withdrawToken0}
-            className={`${!token0WithdrawAvailable && "bg-gray-500 text-gray-800"}`}
+            className={`${!token0WithdrawAvailable && "bg-gray-500 text-gray-800"} w-44`}
           />
 
           <p className="text-xs mt-1">Faucet Balance: {faucetContext?.balanceOfToken0}</p>
@@ -53,10 +60,16 @@ export const Faucet: FC = () => {
         </p>
         <div className="mt-2">
           <Button
-            disabled={!token1WithdrawAvailable}
-            text={`Send Me ${swapExContext?.token1Symbol}`}
+            disabled={!token1WithdrawAvailable || faucetContext?.withdrawToken1Loading}
+            text={
+              faucetContext?.withdrawToken1Loading ? (
+                <CircularProgress size="1rem" color="inherit" />
+              ) : (
+                `Send Me ${swapExContext?.token1Symbol}`
+              )
+            }
             onClick={withdrawToken1}
-            className={`${!token1WithdrawAvailable && "bg-gray-500 text-gray-800"}`}
+            className={`${!token1WithdrawAvailable && "bg-gray-500 text-gray-800"} w-44`}
           />
           <p className="text-xs mt-1">Faucet Balance: {faucetContext?.balanceOfToken1}</p>
           {!token1WithdrawAvailable && (

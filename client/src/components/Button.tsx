@@ -1,7 +1,7 @@
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
 interface ButtonProps {
-  text: string;
+  text: string | ReactNode;
   className?: string;
   onClick: () => void;
   disabled?: boolean;
