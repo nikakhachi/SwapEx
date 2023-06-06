@@ -2,6 +2,7 @@ import { FC, useCallback, useContext, useEffect, useState } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
 import { Button } from "./Button";
 import { debounce } from "lodash";
+import { CircularProgress } from "@mui/material";
 
 enum TokenToSell {
   TOKEN0,
@@ -116,8 +117,18 @@ export const Swap: FC = () => {
         </div>
       </div>
       <div className="w-full flex justify-between mt-8">
-        <Button text="Approve" onClick={approve} className="w-full mr-8" />
-        <Button text="Swap" onClick={swap} className="w-full" />
+        <Button
+          text={swapExContext.isTokenApproveLoading ? <CircularProgress color="inherit" size="1rem" /> : "Approve"}
+          onClick={approve}
+          className="w-full mr-8"
+          disabled={swapExContext.isTokenApproveLoading}
+        />
+        <Button
+          text={swapExContext.isTokenSwapLoading ? <CircularProgress color="inherit" size="1rem" /> : "Swap"}
+          onClick={swap}
+          className="w-full"
+          disabled={swapExContext.isTokenSwapLoading}
+        />
       </div>
     </>
   );
