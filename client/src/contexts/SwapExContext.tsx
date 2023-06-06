@@ -4,6 +4,7 @@ import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
 import { BigNumberish } from "ethers";
 import { ERC20_ABI } from "../contracts/ERC20";
+import { bigNumberToNumber } from "../utils";
 
 type SwapExContextType = {
   token0Address: string;
@@ -224,7 +225,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     if (tokenAmountForRatio) {
-      setSecondTokenAmountForRatio(ethers.formatUnits((tokenAmountForRatio as BigNumberish) || 0));
+      setSecondTokenAmountForRatio(String(bigNumberToNumber(tokenAmountForRatio as BigNumberish)));
     }
   }, [tokenAmountForRatio]);
 
@@ -270,23 +271,23 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const value = {
     token0Address: token0Address as string,
     token1Address: token1Address as string,
-    token0Reserve: Number(ethers.formatUnits(token0Reserve as BigNumberish)),
-    token1Reserve: Number(ethers.formatUnits(token1Reserve as BigNumberish)),
+    token0Reserve: bigNumberToNumber(token0Reserve as BigNumberish),
+    token1Reserve: bigNumberToNumber(token1Reserve as BigNumberish),
     token0Symbol: token0Symbol as string,
     token1Symbol: token1Symbol as string,
-    lpTokenAmount: !lpTokenAmount ? 0 : Number(ethers.formatUnits(lpTokenAmount as BigNumberish)),
+    lpTokenAmount: bigNumberToNumber(lpTokenAmount as BigNumberish),
     swap,
     approve,
     addLiquidity,
     removeLiquidity,
-    balanceOfToken0: Number(ethers.formatUnits((balanceOfToken0 as BigNumberish) || 0)),
-    balanceOfToken1: Number(ethers.formatUnits((balanceOfToken1 as BigNumberish) || 0)),
+    balanceOfToken0: bigNumberToNumber(balanceOfToken0 as BigNumberish),
+    balanceOfToken1: bigNumberToNumber(balanceOfToken1 as BigNumberish),
     fetchBalances,
     removeAllLiquidity,
     secondTokenAmountForRatio,
     fetchSecondTokenAmountForRatio,
     fetchTokenOutputForSwap,
-    tokenOutputForSwap: Number(ethers.formatUnits((tokenOutputForSwap as BigNumberish) || 0)),
+    tokenOutputForSwap: bigNumberToNumber(tokenOutputForSwap as BigNumberish),
     resetSecondTokenAmountForRatio: () => setSecondTokenAmountForRatio("0"),
   };
 

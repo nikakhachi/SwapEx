@@ -1,8 +1,9 @@
 import React, { createContext, PropsWithChildren, useEffect } from "react";
 import { useContractRead, useAccount, useContractWrite, useContractEvent } from "wagmi";
 import { TOKEN0_FAUCET_ADDRESS, FAUCET_ABI, TOKEN1_FAUCET_ADDRESS } from "../contracts/Faucet";
-import { ethers, BigNumberish } from "ethers";
+import { BigNumberish } from "ethers";
 import { ERC20_ABI } from "../contracts/ERC20";
+import { bigNumberToNumber } from "../utils";
 
 type FaucetContextType = {
   token0WithdrawableAmountPerCall: number;
@@ -118,14 +119,14 @@ export const FaucetProvider: React.FC<PropsWithChildren> = ({ children }) => {
   };
 
   const value = {
-    token0WithdrawableAmountPerCall: Math.round(Number(ethers.formatUnits((token0WithdrawableAmountPerCall as BigNumberish) || 0))),
-    token1WithdrawableAmountPerCall: Math.round(Number(ethers.formatUnits((token1WithdrawableAmountPerCall as BigNumberish) || 0))),
+    token0WithdrawableAmountPerCall: bigNumberToNumber(token0WithdrawableAmountPerCall as BigNumberish),
+    token1WithdrawableAmountPerCall: bigNumberToNumber(token1WithdrawableAmountPerCall as BigNumberish),
     token0WithdrawAvailableTimestamp: new Date(Number(token0WithdrawalTime || 0) * 1000),
     token1WithdrawAvailableTimestamp: new Date(Number(token1WithdrawalTime || 0) * 1000),
     withdrawToken0,
     withdrawToken1,
-    balanceOfToken0: Number(ethers.formatUnits((balanceOfToken0 as BigNumberish) || 0)),
-    balanceOfToken1: Number(ethers.formatUnits((balanceOfToken1 as BigNumberish) || 0)),
+    balanceOfToken0: bigNumberToNumber(balanceOfToken0 as BigNumberish),
+    balanceOfToken1: bigNumberToNumber(balanceOfToken1 as BigNumberish),
   };
 
   return <FaucetContext.Provider value={value}>{children}</FaucetContext.Provider>;

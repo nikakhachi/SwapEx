@@ -3,6 +3,7 @@ import { useContractRead, useAccount, useContractWrite, useContractEvent } from 
 import { ethers, BigNumberish } from "ethers";
 import { STAKER_ABI, STAKER_ADDRESS } from "../contracts/Staker";
 import { ERC20_ABI } from "../contracts/ERC20";
+import { bigNumberToNumber } from "../utils";
 
 type StakerContextType = {
   totalRewardsToGive: number;
@@ -142,15 +143,15 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
   };
 
   const value = {
-    totalRewardsToGive: Number(ethers.formatUnits(totalRewardsToGive as BigNumberish)),
+    totalRewardsToGive: bigNumberToNumber(totalRewardsToGive as BigNumberish),
     finishAt: new Date(Number(finishAt) * 1000),
-    stakedBalance: Number(ethers.formatUnits((stakedBalance as BigNumberish) || 0)),
-    userRewards: Number(ethers.formatUnits((userRewards as BigNumberish) || 0)),
+    stakedBalance: bigNumberToNumber(stakedBalance as BigNumberish),
+    userRewards: bigNumberToNumber(userRewards as BigNumberish),
     stake,
     withdraw,
     getRewards,
     rewardsTokenSymbol: rewardsTokenSymbol as string,
-    totalStaked: Number(ethers.formatUnits((totalStaked as BigNumberish) || 0)),
+    totalStaked: bigNumberToNumber(totalStaked as BigNumberish),
   };
 
   return <StakerContext.Provider value={value}>{children}</StakerContext.Provider>;
