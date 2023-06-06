@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useEffect, useState } from "react";
-import { useContractRead, useAccount, useContractWrite, useContractEvent } from "wagmi";
+import { useContractRead, useAccount, useContractWrite } from "wagmi";
 import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
 import { BigNumberish } from "ethers";
@@ -52,15 +52,17 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: SWAPEX_ABI,
     functionName: "token1",
   });
-  const { data: token0Reserve, refetch: refetchToken0Reserve } = useContractRead({
+  const { data: token0Reserve } = useContractRead({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "reserve0",
+    watch: true,
   });
-  const { data: token1Reserve, refetch: refetchToken1Reserve } = useContractRead({
+  const { data: token1Reserve } = useContractRead({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "reserve1",
+    watch: true,
   });
   const { data: token0Symbol, refetch: fetchToken0Symbol } = useContractRead({
     address: token0Address as `0x${string}`,
@@ -79,7 +81,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: SWAPEX_ABI,
     functionName: "balanceOf",
     args: [address],
-    enabled: false,
+    watch: true,
   });
   const { write: approveToken0 } = useContractWrite({
     address: token0Address as `0x${string}`,
@@ -91,22 +93,22 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: ERC20_ABI,
     functionName: "approve",
   });
-  const { write: swapTokens, isSuccess: onSwapSuccess } = useContractWrite({
+  const { write: swapTokens } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "swap",
   });
-  const { write: removeLiquidityTx, isSuccess: onRemoveLiquiditySuccess } = useContractWrite({
+  const { write: removeLiquidityTx } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "removeLiquidity",
   });
-  const { write: removeAllLiquidityTx, isSuccess: onRemoveAllLiquiditySuccess } = useContractWrite({
+  const { write: removeAllLiquidityTx } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "removeAllLiquidity",
   });
-  const { write: addLiquidityTx, isSuccess: onAddLiquiditySuccess } = useContractWrite({
+  const { write: addLiquidityTx } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "addLiquidity",
@@ -115,15 +117,15 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     address: token0Address as `0x${string}`,
     abi: ERC20_ABI,
     functionName: "balanceOf",
-    enabled: false,
     args: [address],
+    watch: true,
   });
   const { data: balanceOfToken1, refetch: fetchBalanceOfToken1 } = useContractRead({
     address: token1Address as `0x${string}`,
     abi: ERC20_ABI,
     functionName: "balanceOf",
-    enabled: false,
     args: [address],
+    watch: true,
   });
   const { data: tokenAmountForRatio, refetch: fetchTokenAmountForRatioTx } = useContractRead({
     address: SWAPEX_ADDRESS,
@@ -138,42 +140,6 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "calculateAmountOut",
     args: [tokenInForSwap, ethers.parseEther(String(tokenInAmountForSwap))],
     enabled: false,
-  });
-  useContractEvent({
-    address: SWAPEX_ADDRESS,
-    abi: SWAPEX_ABI,
-    eventName: "Swap",
-    listener(logs) {
-      if ((logs[0] as any).args.swapper.toUpperCase() !== address?.toUpperCase()) {
-        console.log("swap event");
-        refetchToken0Reserve();
-        refetchToken1Reserve();
-      }
-    },
-  });
-  useContractEvent({
-    address: SWAPEX_ADDRESS,
-    abi: SWAPEX_ABI,
-    eventName: "LiquidityAdded",
-    listener(logs) {
-      if ((logs[0] as any).args.lp.toUpperCase() !== address?.toUpperCase()) {
-        console.log("liquidity add event");
-        refetchToken0Reserve();
-        refetchToken1Reserve();
-      }
-    },
-  });
-  useContractEvent({
-    address: SWAPEX_ADDRESS,
-    abi: SWAPEX_ABI,
-    eventName: "LiquidityRemoved",
-    listener(logs) {
-      if ((logs[0] as any).args.lp.toUpperCase() !== address?.toUpperCase()) {
-        console.log("liquidity removed event");
-        refetchToken0Reserve();
-        refetchToken1Reserve();
-      }
-    },
   });
 
   useEffect(() => {
@@ -200,16 +166,6 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
       fetchBalanceOfToken1();
     }
   }, [address, token1Address, token0Address]);
-
-  useEffect(() => {
-    if (onSwapSuccess || onRemoveLiquiditySuccess || onAddLiquiditySuccess || onRemoveAllLiquiditySuccess) {
-      refetchToken0Reserve();
-      refetchToken1Reserve();
-      fetchBalanceOfToken0();
-      fetchBalanceOfToken1();
-      fetchLpTokenAmount();
-    }
-  }, [onSwapSuccess, onRemoveLiquiditySuccess, onAddLiquiditySuccess, onRemoveAllLiquiditySuccess]);
 
   useEffect(() => {
     if (tokenOneInAmountForLiquidity !== "0") {
