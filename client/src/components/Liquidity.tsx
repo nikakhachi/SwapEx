@@ -2,6 +2,7 @@ import { FC, useCallback, useContext, useEffect, useState } from "react";
 import { SwapExContext } from "../contexts/SwapExContext";
 import { debounce } from "lodash";
 import { Button } from "./Button";
+import { CircularProgress } from "@mui/material";
 
 export const Liquidity: FC = () => {
   const swapExContext = useContext(SwapExContext);
@@ -77,8 +78,18 @@ export const Liquidity: FC = () => {
             type="number"
           />
           <div>
-            <Button text="Remove Liquidity" onClick={removeLiquidity} className="mt-2 mb-4" />
-            <Button text="Remove All Liquidity" onClick={removeAllLiquidity} className="mt-2 mb-4 ml-4" />
+            <Button
+              disabled={swapExContext?.removeLiquidityLoading}
+              text={swapExContext?.removeLiquidityLoading ? <CircularProgress color="inherit" size="1rem" /> : "Remove Liquidity"}
+              onClick={removeLiquidity}
+              className="mt-2 mb-4 w-56"
+            />
+            <Button
+              disabled={swapExContext?.removeLiquidityLoading}
+              text={swapExContext?.removeLiquidityLoading ? <CircularProgress color="inherit" size="1rem" /> : "Remove All Liquidity"}
+              onClick={removeAllLiquidity}
+              className="mt-2 mb-4 ml-4 w-56"
+            />
           </div>
         </div>
       )}
@@ -117,15 +128,21 @@ export const Liquidity: FC = () => {
       <div>
         <div className="mt-2 flex gap-2">
           <Button
-            text={`Approve ${swapExContext?.token0Symbol}`}
-            onClick={() => swapExContext?.approve(swapExContext.token0Address, token0ToProvide)}
-          />
-          <Button
-            text={`Approve ${swapExContext?.token1Symbol}`}
-            onClick={() => swapExContext?.approve(swapExContext.token1Address, token1ToProvide)}
+            disabled={swapExContext?.isTokenApproveLoading}
+            text={swapExContext?.isTokenApproveLoading ? <CircularProgress color="inherit" size="1rem" /> : `Approve Tokens`}
+            onClick={() => {
+              swapExContext?.approve(swapExContext.token0Address, token0ToProvide);
+              swapExContext?.approve(swapExContext.token1Address, token1ToProvide);
+            }}
+            className="w-48"
           />
         </div>
-        <Button text={`Add Liquidity`} onClick={addLiquidity} className="mt-4 mb-4 w-full" />
+        <Button
+          disabled={swapExContext?.addLiquidityLoading}
+          onClick={addLiquidity}
+          className="mt-4 mb-4 w-full"
+          text={swapExContext?.addLiquidityLoading ? <CircularProgress color="inherit" size="1rem" /> : `Add Liquidity`}
+        />
       </div>
     </>
   );

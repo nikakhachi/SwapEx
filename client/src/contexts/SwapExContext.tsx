@@ -29,6 +29,8 @@ type SwapExContextType = {
   resetSecondTokenAmountForRatio: () => void;
   isTokenApproveLoading: boolean;
   isTokenSwapLoading: boolean;
+  removeLiquidityLoading: boolean;
+  addLiquidityLoading: boolean;
 };
 
 export const SwapExContext = createContext<SwapExContextType | null>(null);
@@ -46,6 +48,8 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   const [isTokenApproveLoading, setIsTokenApproveLoading] = useState(false);
   const [isTokenSwapLoading, setIsTokenSwapLoading] = useState(false);
+  const [removeLiquidityLoading, setRemoveLiquidityLoading] = useState(false);
+  const [addLiquidityLoading, setAddLiquidityLoading] = useState(false);
 
   const { data: token0Address } = useContractRead({
     address: SWAPEX_ADDRESS,
@@ -57,13 +61,13 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     abi: SWAPEX_ABI,
     functionName: "token1",
   });
-  const { data: token0Reserve } = useContractRead({
+  const { data: token0Reserve, refetch: refetchToken0Reserve } = useContractRead({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "reserve0",
     watch: true,
   });
-  const { data: token1Reserve } = useContractRead({
+  const { data: token1Reserve, refetch: refetchToken1Reserve } = useContractRead({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "reserve1",
@@ -118,21 +122,36 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "swap",
   });
   const swapTokensTx = useWaitForTransaction({ hash: swapTokensData?.hash });
-  const { write: removeLiquidityTx } = useContractWrite({
+  const {
+    write: removeLiquidityWrite,
+    data: removeLiquidityWriteData,
+    isError: onRemoveLiquidityWriteError,
+  } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "removeLiquidity",
   });
-  const { write: removeAllLiquidityTx } = useContractWrite({
+  const removeLiquidityTx = useWaitForTransaction({ hash: removeLiquidityWriteData?.hash });
+  const {
+    write: removeAllLiquidityWrite,
+    data: removeAllLiquidityWriteData,
+    isError: onRemoveAllLiquidityWriteError,
+  } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "removeAllLiquidity",
   });
-  const { write: addLiquidityTx } = useContractWrite({
+  const removeAllLiquidityTx = useWaitForTransaction({ hash: removeAllLiquidityWriteData?.hash });
+  const {
+    write: addLiquidityWrite,
+    data: addLiquidityWriteData,
+    isError: onAddLiquidityWriteError,
+  } = useContractWrite({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "addLiquidity",
   });
+  const addLiquidityTx = useWaitForTransaction({ hash: addLiquidityWriteData?.hash });
   const { data: balanceOfToken0, refetch: fetchBalanceOfToken0 } = useContractRead({
     address: token0Address as `0x${string}`,
     abi: ERC20_ABI,
@@ -226,7 +245,6 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (onApproveToken0Error || onApproveToken1Error) {
       setIsTokenApproveLoading(false);
-      alert("Error Approving Token");
     }
   }, [onApproveToken0Error, onApproveToken1Error]);
 
@@ -244,9 +262,42 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (onSwapTokensError) {
       setIsTokenSwapLoading(false);
-      alert("Error Swapping Tokens");
     }
   }, [onSwapTokensError]);
+
+  useEffect(() => {
+    if (removeLiquidityTx.status === "success" || removeAllLiquidityTx.status === "success") {
+      setRemoveLiquidityLoading(false);
+      refetchToken0Reserve();
+      refetchToken1Reserve();
+    } else if (removeLiquidityTx.status === "error" || removeAllLiquidityTx.status === "error") {
+      setRemoveLiquidityLoading(false);
+      alert("Error Removing Liquidity");
+    }
+  }, [removeLiquidityTx.status, removeAllLiquidityTx.status]);
+
+  useEffect(() => {
+    if (onRemoveLiquidityWriteError || onRemoveAllLiquidityWriteError) {
+      setRemoveLiquidityLoading(false);
+    }
+  }, [onRemoveLiquidityWriteError, onRemoveAllLiquidityWriteError]);
+
+  useEffect(() => {
+    if (addLiquidityTx.status === "success") {
+      setAddLiquidityLoading(false);
+      refetchToken0Reserve();
+      refetchToken1Reserve();
+    } else if (addLiquidityTx.status === "error") {
+      setAddLiquidityLoading(false);
+      alert("Error Adding Liquidity");
+    }
+  }, [addLiquidityTx.status]);
+
+  useEffect(() => {
+    if (onAddLiquidityWriteError) {
+      setAddLiquidityLoading(false);
+    }
+  }, [onAddLiquidityWriteError]);
 
   const swap = (tokenIn: string, amountIn: number) => {
     setIsTokenSwapLoading(true);
@@ -265,15 +316,18 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   };
 
   const removeLiquidity = (shares: number) => {
-    removeLiquidityTx({ args: [ethers.parseUnits(String(shares))] });
+    setRemoveLiquidityLoading(true);
+    removeLiquidityWrite({ args: [ethers.parseUnits(String(shares))] });
   };
 
   const removeAllLiquidity = () => {
-    removeAllLiquidityTx();
+    setRemoveLiquidityLoading(true);
+    removeAllLiquidityWrite();
   };
 
   const addLiquidity = (token0Amount: string, token1Amount: string) => {
-    addLiquidityTx({ args: [ethers.parseUnits(token0Amount), ethers.parseUnits(token1Amount)] });
+    setAddLiquidityLoading(true);
+    addLiquidityWrite({ args: [ethers.parseUnits(token0Amount), ethers.parseUnits(token1Amount)] });
   };
 
   const fetchBalances = () => {
@@ -314,6 +368,8 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     resetSecondTokenAmountForRatio: () => setSecondTokenAmountForRatio("0"),
     isTokenApproveLoading,
     isTokenSwapLoading,
+    removeLiquidityLoading,
+    addLiquidityLoading,
   };
 
   return <SwapExContext.Provider value={value}>{children}</SwapExContext.Provider>;
