@@ -1,5 +1,5 @@
-import React, { createContext, PropsWithChildren, useEffect } from "react";
-import { useContractRead, useAccount, useContractWrite, useContractEvent } from "wagmi";
+import React, { createContext, PropsWithChildren, useEffect, useState } from "react";
+import { useContractRead, useAccount, useContractWrite, useContractEvent, useWaitForTransaction } from "wagmi";
 import { ethers, BigNumberish } from "ethers";
 import { STAKER_ABI, STAKER_ADDRESS } from "../contracts/Staker";
 import { ERC20_ABI } from "../contracts/ERC20";
@@ -15,11 +15,18 @@ type StakerContextType = {
   getRewards: () => void;
   rewardsTokenSymbol: string;
   totalStaked: number;
+  isStakeLoading: boolean;
+  isWithdrawLoading: boolean;
+  isGetRewardsLoading: boolean;
 };
 
 export const StakerContext = createContext<StakerContextType | null>(null);
 
 export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const [isStakeLoading, setIsStakeLoading] = useState(false);
+  const [isWithdrawLoading, setIsWithdrawLoading] = useState(false);
+  const [isGetRewardsLoading, setIsGetRewardsLoading] = useState(false);
+
   const { address } = useAccount();
   const { data: rewardsToken } = useContractRead({
     address: STAKER_ADDRESS,
@@ -50,21 +57,36 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     args: [address],
     enabled: false,
   });
-  const { write: stakeTx, isSuccess: onStakeSuccess } = useContractWrite({
+  const {
+    write: stakeWrite,
+    data: stakeWriteData,
+    isError: onStakeWriteError,
+  } = useContractWrite({
     address: STAKER_ADDRESS,
     abi: STAKER_ABI,
     functionName: "stake",
   });
-  const { write: withdrawTx, isSuccess: onWithdrawSuccess } = useContractWrite({
+  const stakeTx = useWaitForTransaction({ hash: stakeWriteData?.hash });
+  const {
+    write: withdrawWrite,
+    data: withdrawWriteData,
+    isError: onWithdrawWriteError,
+  } = useContractWrite({
     address: STAKER_ADDRESS,
     abi: STAKER_ABI,
     functionName: "withdraw",
   });
-  const { write: getRewardsTx, isSuccess: onGetRewardsSuccess } = useContractWrite({
+  const withdrawTx = useWaitForTransaction({ hash: withdrawWriteData?.hash });
+  const {
+    write: getRewardsWrite,
+    data: getRewardsWriteData,
+    isError: onGetRewardsWriteError,
+  } = useContractWrite({
     address: STAKER_ADDRESS,
     abi: STAKER_ABI,
     functionName: "getRewards",
   });
+  const getRewardsTx = useWaitForTransaction({ hash: getRewardsWriteData?.hash });
   const { data: rewardsTokenSymbol, refetch: fetchRewardsTokenSymbol } = useContractRead({
     address: rewardsToken as `0x${string}`,
     abi: ERC20_ABI,
@@ -110,36 +132,68 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [rewardsToken]);
 
   useEffect(() => {
-    if (onGetRewardsSuccess) {
+    if (getRewardsTx.status === "success") {
       refetchUserRewards();
+    } else if (getRewardsTx.status === "error") {
+      setIsGetRewardsLoading(false);
+      alert("Error Getting Rewards");
     }
-  }, [onGetRewardsSuccess]);
+  }, [getRewardsTx.status]);
 
   useEffect(() => {
-    if (onStakeSuccess) {
-      refetchStakedBalance();
-      refetchTotalStaked();
+    if (onGetRewardsWriteError) {
+      setIsGetRewardsLoading(false);
     }
-  }, [onStakeSuccess]);
+  }, [onGetRewardsWriteError]);
 
   useEffect(() => {
-    if (onWithdrawSuccess) {
+    if (stakeTx.status === "success") {
+      setIsStakeLoading(false);
+      refetchStakedBalance();
+      refetchTotalStaked();
+    } else if (stakeTx.status === "error") {
+      setIsStakeLoading(false);
+      alert("Error Staking");
+    }
+  }, [stakeTx.status]);
+
+  useEffect(() => {
+    if (onStakeWriteError) {
+      setIsStakeLoading(false);
+    }
+  }, [onStakeWriteError]);
+
+  useEffect(() => {
+    if (withdrawTx.status === "success") {
+      setIsWithdrawLoading(false);
       refetchStakedBalance();
       refetchUserRewards();
       refetchTotalStaked();
+    } else if (withdrawTx.status === "error") {
+      setIsWithdrawLoading(false);
+      alert("Error Withdrawing");
     }
-  }, [onWithdrawSuccess]);
+  }, [withdrawTx.status]);
+
+  useEffect(() => {
+    if (onWithdrawWriteError) {
+      setIsWithdrawLoading(false);
+    }
+  }, [onWithdrawWriteError]);
 
   const stake = (amount: number) => {
-    stakeTx({ value: ethers.parseEther(String(amount)) });
+    setIsStakeLoading(true);
+    stakeWrite({ value: ethers.parseEther(String(amount)) });
   };
 
   const withdraw = () => {
-    withdrawTx();
+    setIsWithdrawLoading(true);
+    withdrawWrite();
   };
 
   const getRewards = () => {
-    getRewardsTx();
+    setIsGetRewardsLoading(true);
+    getRewardsWrite();
   };
 
   const value = {
@@ -152,6 +206,9 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     getRewards,
     rewardsTokenSymbol: rewardsTokenSymbol as string,
     totalStaked: bigNumberToNumber(totalStaked as BigNumberish),
+    isStakeLoading,
+    isWithdrawLoading,
+    isGetRewardsLoading,
   };
 
   return <StakerContext.Provider value={value}>{children}</StakerContext.Provider>;

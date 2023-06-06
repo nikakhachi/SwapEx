@@ -2,6 +2,7 @@ import { FC, useContext, useState } from "react";
 import moment from "moment";
 import { StakerContext } from "../contexts/StakerContext";
 import { Button } from "./Button";
+import { CircularProgress } from "@mui/material";
 
 export const Staker: FC = () => {
   const stakerContext = useContext(StakerContext);
@@ -37,21 +38,36 @@ export const Staker: FC = () => {
       </p>
       {stakerContext?.userRewards !== 0 && (
         <div>
-          <Button text="Get Rewards" className="mb-4" onClick={getRewards} />
+          <Button
+            disabled={stakerContext?.isGetRewardsLoading}
+            className="mb-4 w-44"
+            onClick={getRewards}
+            text={stakerContext?.isGetRewardsLoading ? <CircularProgress color="inherit" size="1rem" /> : "Get Rewards"}
+          />
         </div>
       )}
       {stakerContext?.stakedBalance ? (
         <>
           <p className="text-xl mb-2">Staked Amount: {stakerContext?.stakedBalance} ETH</p>
           <div>
-            <Button text="Withdraw" className="mt-2 mb-4" onClick={withdraw} />
+            <Button
+              disabled={stakerContext?.isWithdrawLoading}
+              className="mt-2 mb-4 w-40"
+              onClick={withdraw}
+              text={stakerContext?.isWithdrawLoading ? <CircularProgress color="inherit" size="1rem" /> : "Withdraw"}
+            />
           </div>
         </>
       ) : !isLate ? (
         <>
           <input className="text-2xl rounded-xl px-4" value={ethToStake} onChange={(e) => setEthToStake(Number(e.target.value))} />
           <div>
-            <Button text="Stake" className="mt-2 mb-4" onClick={stake} />
+            <Button
+              disabled={stakerContext?.isStakeLoading}
+              className="mt-2 mb-4 w-40"
+              onClick={stake}
+              text={stakerContext?.isStakeLoading ? <CircularProgress color="inherit" size="1rem" /> : "Stake"}
+            />
           </div>
         </>
       ) : null}
