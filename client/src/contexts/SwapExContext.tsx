@@ -213,7 +213,11 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [tokenOneInAmountForLiquidity]);
 
   useEffect(() => {
-    if (tokenInAmountForSwap || tokenInForSwap) {
+    if (
+      (tokenInAmountForSwap || tokenInForSwap) &&
+      bigNumberToNumber(token0Reserve as BigNumberish) &&
+      bigNumberToNumber(token1Reserve as BigNumberish)
+    ) {
       fetchTokenOutputForSwapTx();
     }
   }, [tokenInAmountForSwap, tokenInForSwap]);
