@@ -73,7 +73,7 @@ export const Swap: FC = () => {
         };
 
   const approve = () => {
-    swapExContext.approve(tokenData.toSellAddress, String(amountToSell));
+    swapExContext.approve(tokenData.toSellAddress, String(amountToSell), "swap");
   };
 
   const swap = () => {
@@ -118,10 +118,10 @@ export const Swap: FC = () => {
       </div>
       <div className="w-full flex justify-between mt-8">
         <Button
-          text={swapExContext.isTokenApproveLoading ? <CircularProgress color="inherit" size="1rem" /> : "Approve"}
+          text={swapExContext.isTokenApproveForSwapLoading ? <CircularProgress color="inherit" size="1rem" /> : "Approve"}
           onClick={approve}
           className="w-full mr-8"
-          disabled={swapExContext.isTokenApproveLoading}
+          disabled={swapExContext.isTokenApproveForSwapLoading}
         />
         <Button
           text={swapExContext.isTokenSwapLoading ? <CircularProgress color="inherit" size="1rem" /> : "Swap"}

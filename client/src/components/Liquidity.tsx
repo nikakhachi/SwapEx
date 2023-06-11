@@ -128,13 +128,28 @@ export const Liquidity: FC = () => {
       <div>
         <div className="mt-2 flex gap-2">
           <Button
-            disabled={swapExContext?.isTokenApproveLoading}
-            text={swapExContext?.isTokenApproveLoading ? <CircularProgress color="inherit" size="1rem" /> : `Approve Tokens`}
-            onClick={() => {
-              swapExContext?.approve(swapExContext.token0Address, token0ToProvide);
-              swapExContext?.approve(swapExContext.token1Address, token1ToProvide);
-            }}
-            className="w-48"
+            disabled={swapExContext?.isTokenApproveForL0Loading}
+            onClick={() => swapExContext?.approve(swapExContext.token0Address, token0ToProvide, "l0")}
+            text={
+              swapExContext?.isTokenApproveForL0Loading ? (
+                <CircularProgress color="inherit" size="1rem" />
+              ) : (
+                `Approve ${swapExContext?.token0Symbol}`
+              )
+            }
+            className="w-44"
+          />
+          <Button
+            disabled={swapExContext?.isTokenApproveForL1Loading}
+            onClick={() => swapExContext?.approve(swapExContext.token1Address, token1ToProvide, "l1")}
+            text={
+              swapExContext?.isTokenApproveForL1Loading ? (
+                <CircularProgress color="inherit" size="1rem" />
+              ) : (
+                `Approve ${swapExContext?.token1Symbol}`
+              )
+            }
+            className="w-44"
           />
         </div>
         <Button

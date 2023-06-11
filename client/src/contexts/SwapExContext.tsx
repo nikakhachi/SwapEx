@@ -1,10 +1,11 @@
 import React, { createContext, PropsWithChildren, useEffect, useState } from "react";
-import { useContractRead, useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
+import { useContractRead, useAccount, useContractWrite, useWaitForTransaction, usePublicClient } from "wagmi";
 import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
 import { BigNumberish } from "ethers";
 import { ERC20_ABI } from "../contracts/ERC20";
 import { bigNumberToNumber } from "../utils";
+import { writeContractAndWait } from "../utils/wagmi";
 
 type SwapExContextType = {
   token0Address: string;
@@ -15,7 +16,7 @@ type SwapExContextType = {
   token1Symbol: string;
   lpTokenAmount: number;
   swap: (tokenIn: string, amountIn: number) => void;
-  approve: (tokenAddress: string, amount: string) => void;
+  approve: (tokenAddress: string, amount: string, approveFor: ApproveForTypes) => void;
   removeLiquidity: (shares: number) => void;
   removeAllLiquidity: () => void;
   addLiquidity: (token0Amount: string, token1Amount: string) => void;
@@ -27,11 +28,15 @@ type SwapExContextType = {
   tokenOutputForSwap: number;
   fetchTokenOutputForSwap: (tokenIn: string, tokenInAmount: number) => void;
   resetSecondTokenAmountForRatio: () => void;
-  isTokenApproveLoading: boolean;
+  isTokenApproveForSwapLoading: boolean;
   isTokenSwapLoading: boolean;
   removeLiquidityLoading: boolean;
   addLiquidityLoading: boolean;
+  isTokenApproveForL0Loading: boolean;
+  isTokenApproveForL1Loading: boolean;
 };
+
+type ApproveForTypes = "swap" | "l0" | "l1";
 
 export const SwapExContext = createContext<SwapExContextType | null>(null);
 
@@ -46,7 +51,10 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   const [secondTokenAmountForRatio, setSecondTokenAmountForRatio] = useState("0");
 
-  const [isTokenApproveLoading, setIsTokenApproveLoading] = useState(false);
+  const [isTokenApproveForSwapLoading, setIsTokenApproveForSwapLoading] = useState(false);
+  const [isTokenApproveForL0Loading, setIsTokenApproveForL0Loading] = useState(false); // L0 = Token 0 for liquidity
+  const [isTokenApproveForL1Loading, setIsTokenApproveForL1Loading] = useState(false); // L1 = Token 1 for liquidity
+
   const [isTokenSwapLoading, setIsTokenSwapLoading] = useState(false);
   const [removeLiquidityLoading, setRemoveLiquidityLoading] = useState(false);
   const [addLiquidityLoading, setAddLiquidityLoading] = useState(false);
@@ -67,6 +75,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "reserve0",
     watch: true,
   });
+  console.log(token0Address);
   const { data: token1Reserve, refetch: refetchToken1Reserve } = useContractRead({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
@@ -92,26 +101,6 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     args: [address],
     watch: true,
   });
-  const {
-    write: approveToken0,
-    data: approveToken0Data,
-    isError: onApproveToken0Error,
-  } = useContractWrite({
-    address: token0Address as `0x${string}`,
-    abi: ERC20_ABI,
-    functionName: "approve",
-  });
-  const approveToken0Tx = useWaitForTransaction({ hash: approveToken0Data?.hash });
-  const {
-    write: approveToken1,
-    data: approveToken1Data,
-    isError: onApproveToken1Error,
-  } = useContractWrite({
-    address: token1Address as `0x${string}`,
-    abi: ERC20_ABI,
-    functionName: "approve",
-  });
-  const approveToken1Tx = useWaitForTransaction({ hash: approveToken1Data?.hash });
   const {
     write: swapTokens,
     data: swapTokensData,
@@ -229,30 +218,6 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [tokenAmountForRatio]);
 
   useEffect(() => {
-    if (approveToken0Tx.status === "success") {
-      setIsTokenApproveLoading(false);
-    } else if (approveToken0Tx.status === "error") {
-      setIsTokenApproveLoading(false);
-      alert("Error Approving Token 0");
-    }
-  }, [approveToken0Tx.status]);
-
-  useEffect(() => {
-    if (approveToken1Tx.status === "success") {
-      setIsTokenApproveLoading(false);
-    } else if (approveToken1Tx.status === "error") {
-      setIsTokenApproveLoading(false);
-      alert("Error Approving Token 1");
-    }
-  }, [approveToken1Tx.status]);
-
-  useEffect(() => {
-    if (onApproveToken0Error || onApproveToken1Error) {
-      setIsTokenApproveLoading(false);
-    }
-  }, [onApproveToken0Error, onApproveToken1Error]);
-
-  useEffect(() => {
     if (swapTokensTx.status === "success") {
       setIsTokenSwapLoading(false);
       fetchBalanceOfToken0();
@@ -308,14 +273,24 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     swapTokens({ args: [tokenIn, ethers.parseUnits(String(amountIn))] });
   };
 
-  const approve = (tokenAddress: string, amount: string) => {
-    setIsTokenApproveLoading(true);
-    if (tokenAddress === token0Address) {
-      approveToken0({ args: [SWAPEX_ADDRESS, ethers.parseUnits(amount)] });
-    } else if (tokenAddress === token1Address) {
-      approveToken1({ args: [SWAPEX_ADDRESS, ethers.parseUnits(amount)] });
-    } else {
-      setIsTokenApproveLoading(false);
+  const approve = async (tokenAddress: string, amount: string, approveFor: ApproveForTypes) => {
+    // TODO Make state setting simpler
+    if (approveFor === "swap") setIsTokenApproveForSwapLoading(true);
+    if (approveFor === "l0") setIsTokenApproveForL0Loading(true);
+    if (approveFor === "l1") setIsTokenApproveForL1Loading(true);
+    try {
+      await writeContractAndWait({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [SWAPEX_ADDRESS, ethers.parseUnits(amount)],
+      });
+    } catch (error: any) {
+      console.log(error);
+    } finally {
+      if (approveFor === "swap") setIsTokenApproveForSwapLoading(false);
+      if (approveFor === "l0") setIsTokenApproveForL0Loading(false);
+      if (approveFor === "l1") setIsTokenApproveForL1Loading(false);
     }
   };
 
@@ -370,10 +345,12 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     fetchTokenOutputForSwap,
     tokenOutputForSwap: bigNumberToNumber(tokenOutputForSwap as BigNumberish),
     resetSecondTokenAmountForRatio: () => setSecondTokenAmountForRatio("0"),
-    isTokenApproveLoading,
+    isTokenApproveForSwapLoading,
     isTokenSwapLoading,
     removeLiquidityLoading,
     addLiquidityLoading,
+    isTokenApproveForL0Loading,
+    isTokenApproveForL1Loading,
   };
 
   return <SwapExContext.Provider value={value}>{children}</SwapExContext.Provider>;
