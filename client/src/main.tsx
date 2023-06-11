@@ -5,13 +5,13 @@ import "./index.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { goerli } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
 import { SwapExProvider } from "./contexts/SwapExContext.tsx";
 import { SnackbarProvider } from "./contexts/SnackbarContext.tsx";
 import { FaucetProvider } from "./contexts/FaucetContext.tsx";
 import { StakerProvider } from "./contexts/StakerContext.tsx";
+import { alchemyProvider } from "wagmi/providers/alchemy";
 
-const { chains, publicClient } = configureChains([goerli], [publicProvider()]);
+const { chains, publicClient } = configureChains([goerli], [alchemyProvider({ apiKey: import.meta.env.VITE_ALCHEMY_API_KEY as string })]);
 
 const { connectors } = getDefaultWallets({
   appName: "SwapEx",
