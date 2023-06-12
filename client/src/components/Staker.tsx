@@ -3,6 +3,7 @@ import moment from "moment";
 import { StakerContext } from "../contexts/StakerContext";
 import { Button } from "./Button";
 import { CircularProgress } from "@mui/material";
+import { STAKER_ADDRESS } from "../contracts/Staker";
 
 export const Staker: FC = () => {
   const stakerContext = useContext(StakerContext);
@@ -25,6 +26,14 @@ export const Staker: FC = () => {
 
   return (
     <>
+      <a
+        href={`https://goerli.etherscan.io/address/${STAKER_ADDRESS}`}
+        className="text-center mb-8 underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        ETHERSCAN
+      </a>
       <p className="text-2xl">
         Total Rewards To Give - {stakerContext?.totalRewardsToGive} {stakerContext?.rewardsTokenSymbol}
       </p>

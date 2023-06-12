@@ -4,6 +4,7 @@ import { debounce } from "lodash";
 import { Button } from "./Button";
 import { CircularProgress } from "@mui/material";
 import { decimalsLessOrEqualThan18 } from "../utils";
+import { SWAPEX_ADDRESS } from "../contracts/swapEx";
 
 export const Liquidity: FC = () => {
   const swapExContext = useContext(SwapExContext);
@@ -69,6 +70,14 @@ export const Liquidity: FC = () => {
 
   return (
     <>
+      <a
+        href={`https://goerli.etherscan.io/address/${SWAPEX_ADDRESS}`}
+        className="text-center mb-8 underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        ETHERSCAN
+      </a>
       <p className="text-2xl">LP Tokens: {swapExContext?.lpTokenAmount}</p>
       {swapExContext?.lpTokenAmount !== "0" && (
         <div>

@@ -4,6 +4,7 @@ import { Button } from "./Button";
 import { debounce } from "lodash";
 import { CircularProgress } from "@mui/material";
 import { decimalsLessOrEqualThan18 } from "../utils";
+import { SWAPEX_ADDRESS } from "../contracts/swapEx";
 
 enum TokenToSell {
   TOKEN0,
@@ -83,6 +84,14 @@ export const Swap: FC = () => {
 
   return (
     <>
+      <a
+        href={`https://goerli.etherscan.io/address/${SWAPEX_ADDRESS}`}
+        className="text-center mb-8 underline"
+        target="_blank"
+        rel="noreferrer"
+      >
+        ETHERSCAN
+      </a>
       <div className="bg-gray-200 rounded-3xl px-4 py-2 text-black w-full">
         <div className="flex justify-between">
           <input

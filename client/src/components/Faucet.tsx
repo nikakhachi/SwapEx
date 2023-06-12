@@ -4,6 +4,7 @@ import { FaucetContext } from "../contexts/FaucetContext";
 import moment from "moment";
 import { Button } from "./Button";
 import { CircularProgress } from "@mui/material";
+import { TOKEN0_FAUCET_ADDRESS, TOKEN1_FAUCET_ADDRESS } from "../contracts/Faucet";
 
 export const Faucet: FC = () => {
   const swapExContext = useContext(SwapExContext);
@@ -26,7 +27,15 @@ export const Faucet: FC = () => {
         <p className="text-2xl">
           {swapExContext?.token0Symbol}{" "}
           <span className="text-sm">
-            Enjoy {faucetContext?.token0WithdrawableAmountPerCall} {swapExContext?.token0Symbol} when you make a request
+            Enjoy {faucetContext?.token0WithdrawableAmountPerCall} {swapExContext?.token0Symbol} when you make a request{" "}
+            <a
+              href={`https://goerli.etherscan.io/address/${TOKEN0_FAUCET_ADDRESS}`}
+              className="text-center underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              (ETHERSCAN)
+            </a>
           </span>
         </p>
         <div className="mt-2">
@@ -55,7 +64,15 @@ export const Faucet: FC = () => {
         <p className="text-2xl">
           {swapExContext?.token1Symbol}{" "}
           <span className="text-sm">
-            Enjoy {faucetContext?.token1WithdrawableAmountPerCall} {swapExContext?.token1Symbol} when you make a request
+            Enjoy {faucetContext?.token1WithdrawableAmountPerCall} {swapExContext?.token1Symbol} when you make a request{" "}
+            <a
+              href={`https://goerli.etherscan.io/address/${TOKEN1_FAUCET_ADDRESS}`}
+              className="text-center underline"
+              target="_blank"
+              rel="noreferrer"
+            >
+              (ETHERSCAN)
+            </a>
           </span>
         </p>
         <div className="mt-2">
