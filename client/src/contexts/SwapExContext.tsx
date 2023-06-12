@@ -4,7 +4,7 @@ import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
 import { BigNumberish } from "ethers";
 import { ERC20_ABI } from "../contracts/ERC20";
-import { bigNumberToNumber } from "../utils";
+import { bigNumberToNumber, bigNumberToString } from "../utils";
 import { writeContractAndWait } from "../utils/wagmi";
 
 type SwapExContextType = {
@@ -212,7 +212,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
   useEffect(() => {
     if (tokenAmountForRatio) {
-      setSecondTokenAmountForRatio(String(bigNumberToNumber(tokenAmountForRatio as BigNumberish)));
+      setSecondTokenAmountForRatio(bigNumberToString(tokenAmountForRatio as BigNumberish));
     }
   }, [tokenAmountForRatio]);
 
