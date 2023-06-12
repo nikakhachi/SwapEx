@@ -7,7 +7,7 @@ import { CircularProgress } from "@mui/material";
 export const Staker: FC = () => {
   const stakerContext = useContext(StakerContext);
 
-  const [ethToStake, setEthToStake] = useState(0);
+  const [ethToStake, setEthToStake] = useState("0");
 
   const isLate = moment(stakerContext?.finishAt).diff(moment()) < 0;
 
@@ -60,7 +60,7 @@ export const Staker: FC = () => {
         </>
       ) : !isLate ? (
         <>
-          <input className="text-2xl rounded-xl px-4" value={ethToStake} onChange={(e) => setEthToStake(Number(e.target.value))} />
+          <input className="text-2xl rounded-xl px-4" value={ethToStake} onChange={(e) => setEthToStake(e.target.value)} type="number" />
           <div>
             <Button
               disabled={stakerContext?.isStakeLoading}

@@ -10,7 +10,7 @@ type StakerContextType = {
   finishAt: Date;
   stakedBalance: number;
   userRewards: number;
-  stake: (amount: number) => void;
+  stake: (amount: string) => void;
   withdraw: () => void;
   getRewards: () => void;
   rewardsTokenSymbol: string;
@@ -181,9 +181,9 @@ export const StakerProvider: React.FC<PropsWithChildren> = ({ children }) => {
     }
   }, [onWithdrawWriteError]);
 
-  const stake = (amount: number) => {
+  const stake = (amount: string) => {
     setIsStakeLoading(true);
-    stakeWrite({ value: ethers.parseEther(String(amount)) });
+    stakeWrite({ value: ethers.parseEther(amount) });
   };
 
   const withdraw = () => {
