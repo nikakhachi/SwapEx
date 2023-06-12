@@ -1,4 +1,6 @@
-export const STAKER_ADDRESS = "0x930e25e253Fab06cbBaC908Dd0f8b96769eFD182";
+export const STAKER_ADDRESS = import.meta.env.DEV
+  ? "0xa513e6e4b8f2a923d98304ec87f64353c4d5c853"
+  : "0x930e25e253Fab06cbBaC908Dd0f8b96769eFD182";
 export const STAKER_ABI = [
   {
     inputs: [
