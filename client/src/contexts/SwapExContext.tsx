@@ -15,18 +15,18 @@ type SwapExContextType = {
   token0Symbol: string;
   token1Symbol: string;
   lpTokenAmount: number;
-  swap: (tokenIn: string, amountIn: number) => void;
+  swap: (tokenIn: string, amountIn: string) => void;
   approve: (tokenAddress: string, amount: string, approveFor: ApproveForTypes) => void;
   removeLiquidity: (shares: number) => void;
   removeAllLiquidity: () => void;
   addLiquidity: (token0Amount: string, token1Amount: string) => void;
-  balanceOfToken0: number;
-  balanceOfToken1: number;
+  balanceOfToken0: string;
+  balanceOfToken1: string;
   fetchBalances: () => void;
   secondTokenAmountForRatio: string;
   fetchSecondTokenAmountForRatio: (tokenOne: string, tokenOneAmount: string) => void;
-  tokenOutputForSwap: number;
-  fetchTokenOutputForSwap: (tokenIn: string, tokenInAmount: number) => void;
+  tokenOutputForSwap: string;
+  fetchTokenOutputForSwap: (tokenIn: string, tokenInAmount: string) => void;
   resetSecondTokenAmountForRatio: () => void;
   isTokenApproveForSwapLoading: boolean;
   isTokenSwapLoading: boolean;
@@ -47,7 +47,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const [tokenOneInAmountForLiquidity, setTokenOneInAmountForLiqudiity] = useState("0");
 
   const [tokenInForSwap, setTokenInForSwap] = useState("");
-  const [tokenInAmountForSwap, setTokenInAmountForSwap] = useState(0);
+  const [tokenInAmountForSwap, setTokenInAmountForSwap] = useState("0");
 
   const [secondTokenAmountForRatio, setSecondTokenAmountForRatio] = useState("0");
 
@@ -158,14 +158,14 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "secondTokenLiquidityAmount",
-    args: [tokenOneInForLiquidity, ethers.parseEther(String(tokenOneInAmountForLiquidity))],
+    args: [tokenOneInForLiquidity, ethers.parseEther(tokenOneInAmountForLiquidity)],
     enabled: false,
   });
   const { data: tokenOutputForSwap, refetch: fetchTokenOutputForSwapTx } = useContractRead({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
     functionName: "calculateAmountOut",
-    args: [tokenInForSwap, ethers.parseEther(String(tokenInAmountForSwap))],
+    args: [tokenInForSwap, ethers.parseEther(tokenInAmountForSwap)],
     enabled: false,
   });
 
@@ -267,9 +267,9 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     }
   }, [onAddLiquidityWriteError]);
 
-  const swap = (tokenIn: string, amountIn: number) => {
+  const swap = (tokenIn: string, amountIn: string) => {
     setIsTokenSwapLoading(true);
-    swapTokens({ args: [tokenIn, ethers.parseUnits(String(amountIn))] });
+    swapTokens({ args: [tokenIn, ethers.parseUnits(amountIn)] });
   };
 
   const approve = async (tokenAddress: string, amount: string, approveFor: ApproveForTypes) => {
@@ -318,7 +318,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     setTokenOneInAmountForLiqudiity(tokenOneIn);
   };
 
-  const fetchTokenOutputForSwap = (tokenIn: string, tokenInAmount: number) => {
+  const fetchTokenOutputForSwap = (tokenIn: string, tokenInAmount: string) => {
     setTokenInForSwap(tokenIn);
     setTokenInAmountForSwap(tokenInAmount);
   };
@@ -335,14 +335,14 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     approve,
     addLiquidity,
     removeLiquidity,
-    balanceOfToken0: bigNumberToNumber(balanceOfToken0 as BigNumberish),
-    balanceOfToken1: bigNumberToNumber(balanceOfToken1 as BigNumberish),
+    balanceOfToken0: bigNumberToString(balanceOfToken0 as BigNumberish),
+    balanceOfToken1: bigNumberToString(balanceOfToken1 as BigNumberish),
     fetchBalances,
     removeAllLiquidity,
     secondTokenAmountForRatio,
     fetchSecondTokenAmountForRatio,
     fetchTokenOutputForSwap,
-    tokenOutputForSwap: bigNumberToNumber(tokenOutputForSwap as BigNumberish),
+    tokenOutputForSwap: bigNumberToString(tokenOutputForSwap as BigNumberish),
     resetSecondTokenAmountForRatio: () => setSecondTokenAmountForRatio("0"),
     isTokenApproveForSwapLoading,
     isTokenSwapLoading,

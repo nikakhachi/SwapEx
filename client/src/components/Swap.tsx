@@ -3,6 +3,7 @@ import { SwapExContext } from "../contexts/SwapExContext";
 import { Button } from "./Button";
 import { debounce } from "lodash";
 import { CircularProgress } from "@mui/material";
+import { decimalsLessOrEqualThan18 } from "../utils";
 
 enum TokenToSell {
   TOKEN0,
@@ -11,10 +12,10 @@ enum TokenToSell {
 
 type TokenDataType = {
   toSellAddress: string;
-  toSellBalance: number;
+  toSellBalance: string;
   toSellSymbol: string;
   toBuyAddress: string;
-  toBuyBalance: number;
+  toBuyBalance: string;
   toBuySymbol: string;
 };
 
@@ -23,12 +24,12 @@ export const Swap: FC = () => {
 
   const [tokenToSell, setTokenToSell] = useState(TokenToSell.TOKEN0);
 
-  const [amountToSell, setAmountToSell] = useState(0);
+  const [amountToSell, setAmountToSell] = useState("0");
 
-  const [amountToGet, setAmountToGet] = useState(0);
+  const [amountToGet, setAmountToGet] = useState("0");
 
   const debounceFunc = useCallback(
-    debounce((tokenIn: string, tokenInAmount: number) => {
+    debounce((tokenIn: string, tokenInAmount: string) => {
       swapExContext?.fetchTokenOutputForSwap(tokenIn, tokenInAmount);
     }, 100),
     []
@@ -86,7 +87,9 @@ export const Swap: FC = () => {
         <div className="flex justify-between">
           <input
             value={amountToSell}
-            onChange={(e) => setAmountToSell(Number(e.target.value))}
+            onChange={(e) => {
+              if (decimalsLessOrEqualThan18(e.target.value)) setAmountToSell(e.target.value);
+            }}
             type="number"
             className="bg-gray-200 outline-0 text-2xl w-2/4"
           />
