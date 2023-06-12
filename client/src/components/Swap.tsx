@@ -96,7 +96,7 @@ export const Swap: FC = () => {
           <p className="text-2xl">{tokenData.toSellSymbol}</p>
         </div>
         <div style={{ display: "flex", justifyContent: "right" }}>
-          <p>Balance: {tokenData.toSellBalance}</p>
+          <p>Balance: {Number(tokenData.toSellBalance)}</p>
         </div>
       </div>
       <div className="w-full justify-center flex">
@@ -116,7 +116,7 @@ export const Swap: FC = () => {
           <p className="text-2xl">{tokenData.toBuySymbol}</p>
         </div>
         <div style={{ display: "flex", justifyContent: "right" }}>
-          <p>Balance: {tokenData.toBuyBalance}</p>
+          <p>Balance: {Number(tokenData.toBuyBalance)}</p>
         </div>
       </div>
       <div className="w-full flex justify-between mt-8">
