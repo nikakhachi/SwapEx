@@ -13,7 +13,7 @@ export const Liquidity: FC = () => {
 
   const [primaryToken, setPrimaryToken] = useState(swapExContext?.token0Address as string);
 
-  const [sharesToRemove, setSharesToRemove] = useState(0);
+  const [sharesToRemove, setSharesToRemove] = useState("0");
 
   const [debounceLocked, setDebounceLocked] = useState(false);
 
@@ -75,7 +75,9 @@ export const Liquidity: FC = () => {
           <input
             className="text-2xl rounded-xl px-4 mt-2 mb-1"
             value={sharesToRemove}
-            onChange={(e) => setSharesToRemove(Number(e.target.value))}
+            onChange={(e) => {
+              if (decimalsLessOrEqualThan18(e.target.value)) setSharesToRemove(e.target.value);
+            }}
             type="number"
           />
           <div>
@@ -95,10 +97,10 @@ export const Liquidity: FC = () => {
         </div>
       )}
       <p className="text-xl">
-        {swapExContext?.token0Symbol} Reserve: {swapExContext?.token0Reserve} tokens
+        {swapExContext?.token0Symbol} Reserve: {Number(swapExContext?.token0Reserve)} tokens
       </p>
       <p className="text-xl">
-        {swapExContext?.token1Symbol} Reserve: {swapExContext?.token1Reserve} tokens
+        {swapExContext?.token1Symbol} Reserve: {Number(swapExContext?.token1Reserve)} tokens
       </p>
 
       <div className="flex gap-2 mb-1 mt-2">

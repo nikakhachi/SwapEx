@@ -17,7 +17,7 @@ type SwapExContextType = {
   lpTokenAmount: string;
   swap: (tokenIn: string, amountIn: string) => void;
   approve: (tokenAddress: string, amount: string, approveFor: ApproveForTypes) => void;
-  removeLiquidity: (shares: number) => void;
+  removeLiquidity: (shares: string) => void;
   removeAllLiquidity: () => void;
   addLiquidity: (token0Amount: string, token1Amount: string) => void;
   balanceOfToken0: string;
@@ -293,7 +293,7 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     }
   };
 
-  const removeLiquidity = (shares: number) => {
+  const removeLiquidity = (shares: string) => {
     setRemoveLiquidityLoading(true);
     removeLiquidityWrite({ args: [ethers.parseUnits(String(shares))] });
   };
