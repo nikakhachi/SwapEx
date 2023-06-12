@@ -1,6 +1,6 @@
 export const SWAPEX_ADDRESS = import.meta.env.DEV
   ? "0x0165878a594ca255338adfa4d48449f69242eb8f"
-  : "0x922A6831E904788cf4dB10134aFB4E910Df4E395";
+  : "0x72d79543acF97aF49a33E06fFF52a754C9d895AC";
 export const SWAPEX_ABI = [
   {
     inputs: [
