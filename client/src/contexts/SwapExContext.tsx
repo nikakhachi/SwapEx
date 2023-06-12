@@ -1,5 +1,5 @@
 import React, { createContext, PropsWithChildren, useEffect, useState } from "react";
-import { useContractRead, useAccount, useContractWrite, useWaitForTransaction, usePublicClient } from "wagmi";
+import { useContractRead, useAccount, useContractWrite, useWaitForTransaction } from "wagmi";
 import { SWAPEX_ABI, SWAPEX_ADDRESS } from "../contracts/swapEx";
 import { ethers } from "ethers";
 import { BigNumberish } from "ethers";
@@ -75,7 +75,6 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
     functionName: "reserve0",
     watch: true,
   });
-  console.log(token0Address);
   const { data: token1Reserve, refetch: refetchToken1Reserve } = useContractRead({
     address: SWAPEX_ADDRESS,
     abi: SWAPEX_ABI,
