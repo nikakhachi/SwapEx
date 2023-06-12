@@ -21,7 +21,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.9.0",
     "viem": "^0.3.50",
-    "wagmi": "^1.1.1"
+    "wagmi": "^1.0.1"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
