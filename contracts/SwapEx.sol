@@ -138,7 +138,9 @@ contract SwapEx is ERC20 {
             /// @dev with formula x△ / y△ = x / y
             require(
                 _amount0 ==
-                    secondTokenLiquidityAmount(address(token1), _amount1),
+                    secondTokenLiquidityAmount(address(token1), _amount1) ||
+                    _amount1 ==
+                    secondTokenLiquidityAmount(address(token0), _amount0),
                 "Invalid Ratio"
             );
 
