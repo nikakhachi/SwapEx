@@ -5,3 +5,5 @@ export const shortenAddress = (address: string) => (address ? `${address.slice(0
 export const bigNumberToNumber = (n?: BigNumberish) => (n ? Number(ethers.formatUnits(n)) : 0);
 
 export const bigNumberToString = (n?: BigNumberish) => (n ? ethers.formatUnits(n) : "0");
+
+export const decimalsLessOrEqualThan18 = (n: string) => /^-?\d+(\.\d{0,18})?$/.test(n);

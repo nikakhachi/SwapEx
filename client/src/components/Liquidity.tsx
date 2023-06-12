@@ -3,6 +3,7 @@ import { SwapExContext } from "../contexts/SwapExContext";
 import { debounce } from "lodash";
 import { Button } from "./Button";
 import { CircularProgress } from "@mui/material";
+import { decimalsLessOrEqualThan18 } from "../utils";
 
 export const Liquidity: FC = () => {
   const swapExContext = useContext(SwapExContext);
@@ -106,8 +107,10 @@ export const Liquidity: FC = () => {
           className="text-xl rounded-xl px-2"
           value={token0ToProvide}
           onChange={(e) => {
-            setDebounceLocked(false);
-            setToken0ToProvide(e.target.value);
+            if (decimalsLessOrEqualThan18(e.target.value)) {
+              setDebounceLocked(false);
+              setToken0ToProvide(e.target.value);
+            }
           }}
           type="number"
         />
@@ -119,8 +122,10 @@ export const Liquidity: FC = () => {
           className="text-xl rounded-xl px-2"
           value={token1ToProvide}
           onChange={(e) => {
-            setDebounceLocked(false);
-            setToken1ToProvide(e.target.value);
+            if (decimalsLessOrEqualThan18(e.target.value)) {
+              setDebounceLocked(false);
+              setToken1ToProvide(e.target.value);
+            }
           }}
           type="number"
         />
