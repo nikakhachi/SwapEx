@@ -10,11 +10,11 @@ import { writeContractAndWait } from "../utils/wagmi";
 type SwapExContextType = {
   token0Address: string;
   token1Address: string;
-  token0Reserve: number;
-  token1Reserve: number;
+  token0Reserve: string;
+  token1Reserve: string;
   token0Symbol: string;
   token1Symbol: string;
-  lpTokenAmount: number;
+  lpTokenAmount: string;
   swap: (tokenIn: string, amountIn: string) => void;
   approve: (tokenAddress: string, amount: string, approveFor: ApproveForTypes) => void;
   removeLiquidity: (shares: number) => void;
@@ -326,11 +326,11 @@ export const SwapExProvider: React.FC<PropsWithChildren> = ({ children }) => {
   const value = {
     token0Address: token0Address as string,
     token1Address: token1Address as string,
-    token0Reserve: bigNumberToNumber(token0Reserve as BigNumberish),
-    token1Reserve: bigNumberToNumber(token1Reserve as BigNumberish),
+    token0Reserve: bigNumberToString(token0Reserve as BigNumberish),
+    token1Reserve: bigNumberToString(token1Reserve as BigNumberish),
     token0Symbol: token0Symbol as string,
     token1Symbol: token1Symbol as string,
-    lpTokenAmount: bigNumberToNumber(lpTokenAmount as BigNumberish),
+    lpTokenAmount: bigNumberToString(lpTokenAmount as BigNumberish),
     swap,
     approve,
     addLiquidity,

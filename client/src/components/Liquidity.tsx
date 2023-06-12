@@ -70,7 +70,7 @@ export const Liquidity: FC = () => {
   return (
     <>
       <p className="text-2xl">LP Tokens: {swapExContext?.lpTokenAmount}</p>
-      {swapExContext?.lpTokenAmount !== 0 && (
+      {swapExContext?.lpTokenAmount !== "0" && (
         <div>
           <input
             className="text-2xl rounded-xl px-4 mt-2 mb-1"
