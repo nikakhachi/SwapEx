@@ -1,16 +1,16 @@
 import { ethers } from "hardhat";
 
 const CELESTIA_FOR_INITIAL_LIQUIDITY = 10000;
-const CELESTIA_FOR_FAUCET = 200;
+const CELESTIA_FOR_FAUCET = 20000;
 const CELESTIA_FOR_FAUCET_PER_WITHDRAW = 10;
-const CELESTIA_FOR_STAKE_REWARDS = 5000;
+const CELESTIA_FOR_STAKE_REWARDS = 50000;
 const LUMINA_FOR_INITIAL_LIQUIDITY = 50000;
-const LUMINA_FOR_FAUCET = 1000;
+const LUMINA_FOR_FAUCET = 100000;
 const LUMINA_FOR_FAUCET_PER_WITHDRAW = 50;
 const FAUCET_COOLDOWN = 60;
 
 async function main() {
-  await ethers.provider.send("evm_setIntervalMining", [12000]);
+  // await ethers.provider.send("evm_setIntervalMining", [12000]);
 
   const Celestia = await ethers.getContractFactory("Token");
   const celestia = await Celestia.deploy(
@@ -66,7 +66,7 @@ async function main() {
 
   await celestia.transfer(staker.address, ethers.utils.parseUnits(String(CELESTIA_FOR_STAKE_REWARDS)));
 
-  await staker.setRewards(ethers.utils.parseUnits(String(CELESTIA_FOR_STAKE_REWARDS)), 60 * 60);
+  await staker.setRewards(ethers.utils.parseUnits(String(CELESTIA_FOR_STAKE_REWARDS)), 60 * 60 * 24 * 31);
 
   await celestia.approve(swapEx.address, ethers.utils.parseUnits(String(CELESTIA_FOR_INITIAL_LIQUIDITY)));
   await lumina.approve(swapEx.address, ethers.utils.parseUnits(String(LUMINA_FOR_INITIAL_LIQUIDITY)));
